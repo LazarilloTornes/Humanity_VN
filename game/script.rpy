@@ -76,12 +76,26 @@ screen cocina():
         xpos 960
         ypos 450
         action Call("eat")
+    textbutton "Atrás":
+        text_style "txtRoom"
+        xpos 850
+        ypos 1000
+        action [Hide("kitchen"), Show("pasillo")]
             
         
 
 screen puerta():
     add "bg door.png"
-    
+    textbutton "Atrás":
+        text_style "txtRoom"
+        xpos 850
+        ypos 1000
+        action [Hide("puerta"), Show("pasillo")]
+    textbutton "Mirar":
+        text_style "txtRoom"
+        xpos 1000
+        ypos 250
+        
 
 #todas las interacciones
 label Bed:
