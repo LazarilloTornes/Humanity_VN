@@ -4,29 +4,52 @@ define p = Character("[player_name]")
 #variable que determina que hora va a ser
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
 style txtRoom:
-    color "#ffffff"
+    color "#f0dfdc"
+style txtActions:
+    color "#3a0c0c"
 #Actualizar todo lo relacionado con el tiempo
-default hour = 1
+default hour = 0
 default passingHours = "Desayunar"
+default day_moment = "Mañana"
+
 init python:
 
     def update_time():
 
         global passingHours, hour
 
-        if hour == 1:
+        if hour == 0:
             passingHours = "Desayunar"
-            hour += 1
+            
+
+        elif hour == 1:
+            passingHours = "Comer"
+            
 
         elif hour == 2:
-            passingHours = "Comer"
-            hour += 1
-
-        elif hour == 3:
             passingHours = "Cenar"
-            hour = 1
+            
 
+screen stage_day():
+    frame:
+        # Cambia el estado del día dependiendo de la hora
+        if hour == 0:
+            $ day_moment = "Mañana"
+            
 
+        elif hour == 1:
+            $ day_moment = "Tarde"
+            
+
+        elif hour == 2:
+            $ day_moment = "Noche"
+
+        xalign 0.95  
+        yalign 0.05
+        padding (15, 10)
+
+        # El texto que se mostrará en pantalla
+        text "[day_moment]" size 24 color "#f0dfdc"
 screen habitacion():
         #solo como recordatorio, screen trabaja añadiendo los pngs directamente, el bg solo sirve en labels y demás
         add "bg mainroom.png"
@@ -72,9 +95,9 @@ screen pasillo():
 screen cocina():
     add "bg kitchen.png"
     textbutton "[passingHours]":
-        text_style "txtRoom"
+        text_style "txtActions"
         xpos 960
-        ypos 450
+        ypos 650
         action Call("eat")
     textbutton "Atrás":
         text_style "txtRoom"
@@ -82,13 +105,21 @@ screen cocina():
         ypos 1000
         action [Hide("kitchen"), Show("pasillo")]
             
-        
-
+screen livingroom():
+    add "bg livingroom.png"
+    textbutton "Atrás":
+        text_style "txtRoom"
+        xpos 850
+        ypos 1000
+        action [Hide("livingroom"), Show("pasillo")] 
+screen hall2():
+    add "bg hall2.png"
+    
 screen puerta():
     add "bg door.png"
     textbutton "Atrás":
         text_style "txtRoom"
-        xpos 850
+        xpos 1000
         ypos 1000
         action [Hide("puerta"), Show("pasillo")]
     textbutton "Mirar":
@@ -111,11 +142,19 @@ return
 label eat:
 
     if passingHours == "Desayunar":
+        $ hour += 1
         narrator "Ya era hora, pero será mejor desayunar en el salón"
-        show bg hall2 #hall2 es la pespectiva de la cocina y la puerta
+        window hide
+        play sound "audio/kitchen.m3p" 
+        pause 1.5
+        stop sound
+        show screen hall2
+        #hall2 es la pespectiva de la cocina y la puerta
+        pause 1
+        show screen livingroom
         pause 0.5
-        show bg livingroom
-        pause 0.5
+        narrator "Bon apetite"
+        
 
     elif passingHours == "Comer":
         p "Por fin"
@@ -143,7 +182,9 @@ label start:
     $ player_name = player_name.strip()
     if player_name == "":
         $ player_name = "Bolonga"
-    #INTRODUCCIÓN - CONTEXTO
+
+
+
     menu:
         "Una última cosa, para referirme a ti prefieres?"
 
@@ -157,6 +198,7 @@ label start:
             $ pronombre = "ella"
             $ articulo = "a"
     play music "audio/ambientedia.mp3" loop
+    #INTRODUCCIÓN - CONTEXTO
     narrator "{cps=9}La soledad{/cps}"
     narrator "Algo nuevo para ti en esta nueva etapa de tu vida"
     narrator "{cps=5}. . .{/cps}"
@@ -174,6 +216,7 @@ label start:
     narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar a tu móvil que no paraba de vibrar y emitir esa irritante música.{/cps}"
     pause 1
     show bg weikiweiki
+    show screen stage_day
     #narrator "{cps=16}{/cps}" 
    
     narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida independiente.{/cps}"
