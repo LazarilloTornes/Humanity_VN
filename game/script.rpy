@@ -1,8 +1,9 @@
 # Coloca el código de tu juego en este archivo.
 # Declara los personajes usados en el juego como en el ejemplo:
-define p = Character("[player_name]")
+define p = Character(("[player_name]"), color="#cdcdcd")
 define plNews = Character(("Presentador de noticias"), color="#9ba5d8")
 define plAdd = Character (("Anunciador Entusiastico"), color="#f1f1d3")
+define plAdd2 = Character (("Anunciador Tranquilo"), color="#d4f1d3")
 #variable que determina que hora va a ser
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
 style txtRoom:
@@ -52,6 +53,84 @@ screen stage_day():
         padding (15, 10)
         # El texto que se mostrará en pantalla
         text "[day_moment]" size 32  color "#3a0c0c"
+
+default contacts = ["AA Mamá", "AA Papá"]
+screen phone():
+    zorder 100
+    frame:
+        xsize 400
+        ysize 700
+        xalign 0.5
+        yalign 0.5
+    
+        viewport:
+            scrollbars "vertical"
+            mousewheel True
+            draggable True
+
+            vbox:
+                spacing 10
+                for i in contacts:
+                    textbutton "[i]"
+                    
+# El juego comienza aquí.
+label start:
+    scene black
+    narrator "Antes de comenzar,desearía dirigirme a ti de alguna forma, así que dime"
+    $ player_name = renpy.input("¿Cómo te llamas?")
+    $ player_name = player_name.strip()
+    if player_name == "":
+        $ player_name = "Bolonga"
+
+
+
+    menu:
+        "Una última cosa, para referirme a ti prefieres?"
+
+        "El":
+            $ genero = "hombre"
+            $ pronombre = "él"
+            $ articulo = "o"
+
+        "Ella":
+            $ genero = "mujer"
+            $ pronombre = "ella"
+            $ articulo = "a"
+    play music "audio/ambientedia.mp3" loop
+    #INTRODUCCIÓN - CONTEXTO
+    narrator "{cps=9}La soledad{/cps}"
+    narrator "Algo nuevo para ti en esta nueva etapa de tu vida"
+    narrator "{cps=5}. . .{/cps}"
+    narrator "{cps=16}Han pasado 2 semanas desde que tu abuelo falleció, dejando tras él un arduo y complejo testamento donde toda su herencia se repartiría con la familia.{/cps}"
+    narrator "{cps=16}Hubieron guerras, gritos y amenazas, pero una vez las cosas se calmaron a ti te toco uno de los viejos apartamentos de tu abuelo, realmente nunca te metiste en el tema, y aún así, conseguiste un trozo del pastel{/cps}"
+    narrator "{cps=16}Cualquiera diría que te ha tocado la lotería, alguien como tú, con estudios pero desempleado, buscando trabajo, consiguiendo una casa de la noche a la mañana, ¿Quién lo imaginaba?{/cps}"
+    narrator "{cps=16}Y con tus padres desesperados por echarte de casa esta era la excusa perfecta.{/cps}"
+    narrator "{cps=16}Pero que te puedo decir, aunque haya costado un poco has conseguido mudarte a un rincón de la ciudad, un antiguo barrio de trabajadores.{/cps}"
+    menu:
+        "¿Llevas bien la soledad?"
+        "Sí":
+            narrator "{cps=16}Supongo que es lo normal con el paso del tiempo{/cps}" 
+        "No":
+            narrator "{cps=16}No te preocupes, en algún momento te acostumbrarás.{/cps}" 
+    pause 0.5
+    play sound "audio/alarm-clock.mp3" fadein(0.5)
+    narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y emitir esa irritante música.{/cps}"
+    pause 1
+    show bg weikiweiki
+    show screen stage_day
+    #narrator "{cps=16}{/cps}" 
+   
+    narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida independiente.{/cps}"
+    narrator "{cps=4}Supongo{/cps}"
+    scene black
+    pause 1
+    play sound "wake_up.mp3"
+    narrator "{cps=16}Siendo tan pronto tienes todo el tiempo para hacer lo que quieras… Pero lo mejor será desayunar para empezar el día{/cps}" 
+    #call para usar el screen, básico
+    call screen habitacion
+
+
+#todas las habitaciones de la casa, se usan como screen para poder interactuar con ellas y moverse entre ellas
 screen habitacion():
         #solo como recordatorio, screen trabaja añadiendo los pngs directamente, el bg solo sirve en labels y demás
         add "bg mainroom.png"
@@ -149,17 +228,18 @@ label eat:
         show bg kitchen
         $ hour == 1
         narrator "{cps=16}Ya era hora, pero será mejor desayunar en el salón{/cps}"
-        narrator "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"        
-        window hide
         play sound "audio/kitcken.mp3" 
         pause 2.5
         stop sound
+        narrator "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"        
+        window hide
         show screen hall2
         #hall2 es la pespectiva de la cocina y la puerta        
         pause 1    
         show screen livingroom
         pause 0.5
         narrator "Bon apetite"
+        jump news
         
 
     elif passingHours == "Comer":
@@ -179,19 +259,7 @@ label SopadeLetras:
     narrator "Curiosamente abierta por la página 27"
     call screen habitacion
 return
-label desayunar:
-    $ hour == 1
-    narrator "{cps=16}Ya era hora, pero será mejor desayunar en el salón{/cps}"
-    narrator "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"        
-    window hide
-    play sound "audio/kitcken.mp3" 
-    pause 2.5
-    stop sound
-    show screen hall2
-    #hall2 es la pespectiva de la cocina y la puerta        pause 1    
-    show screen livingroom
-    pause 0.5
-    narrator "Bon apetite"
+
         
 label lookoutside:
     if encuentro == 0:
@@ -201,66 +269,36 @@ label lookoutside:
     
     
 label news:
+    hide screen hall2
+    hide screen livingroom
     show bg eater
     play sound "audio/comer.mp3"
     pause 0.5
     narrator "{cps=16}Espero que este bueno el desayuno, mientras tanto, por que no vemos las noticias?{/cps}"
-   
-# El juego comienza aquí.
-label start:
-    scene black
-    narrator "Antes de comenzar,desearía dirigirme a ti de alguna forma, así que dime"
-    $ player_name = renpy.input("¿Cómo te llamas?")
-    $ player_name = player_name.strip()
-    if player_name == "":
-        $ player_name = "Bolonga"
-
-
-
-    menu:
-        "Una última cosa, para referirme a ti prefieres?"
-
-        "El":
-            $ genero = "hombre"
-            $ pronombre = "él"
-            $ articulo = "o"
-
-        "Ella":
-            $ genero = "mujer"
-            $ pronombre = "ella"
-            $ articulo = "a"
-    play music "audio/ambientedia.mp3" loop
-    #INTRODUCCIÓN - CONTEXTO
-    narrator "{cps=9}La soledad{/cps}"
-    narrator "Algo nuevo para ti en esta nueva etapa de tu vida"
-    narrator "{cps=5}. . .{/cps}"
-    narrator "{cps=16}Han pasado 2 semanas desde que tu abuelo falleció, dejando tras él un arduo y complejo testamento donde toda su herencia se repartiría con la familia.{/cps}"
-    narrator "{cps=16}Hubieron guerras, gritos y amenazas, pero una vez las cosas se calmaron a ti te toco uno de los viejos apartamentos de tu abuelo, realmente nunca te metiste en el tema, y aún así, conseguiste un trozo del pastel{/cps}"
-    narrator "{cps=16}Cualquiera diría que te ha tocado la lotería, alguien como tú, con estudios pero desempleado, buscando trabajo, consiguiendo una casa de la noche a la mañana, ¿Quién lo imaginaba?{/cps}"
-    narrator "{cps=16}Y con tus padres desesperados por echarte de casa esta era la excusa perfecta.{/cps}"
-    narrator "{cps=16}Pero que te puedo decir, aunque haya costado un poco has conseguido mudarte a un rincón de la ciudad, un antiguo barrio de trabajadores.{/cps}"
-    menu:
-        "¿Llevas bien la soledad?"
-        "Sí":
-            narrator "{cps=16}Supongo que es lo normal con el paso del tiempo{/cps}" 
-        "No":
-            narrator "{cps=16}No te preocupes, en algún momento te acostumbrarás.{/cps}" 
+    play sound "audio/button.mp3"
+    stop music fadeout 1.0
+    play sound "audio/news.mp3" volume 0.17
+    plNews "{cps=16}Buenas tardes, y bienvenidos a las noticias de la ciudad, hoy es un día soleado y caluroso, con temperaturas que alcanzarán los 33 grados, así que no olviden hidratarse y usar protector solar.{/cps}"
+    plNews "{cps=16}En otras noticias, se han reportado varios casos de una nueva cepa estacional.{/cps}"
+    plNews "{cps=16}Los contagiados presentan síntomas similares a una gripe o resfriado común, con la ligera diferencia de provocar insomnio en un pequeño número de pacientes.{/cps}"
+    plNews "{cps=16}Se han reportado 21 enfermos hasta el momento, y ningún caso grabe ni fallecimiento.{/cps}"
+    plNews "{cps=16}Y esas han sido las noticias de hoy, gracias por su atención y que tengan un buen día.{/cps}"
+    plNews "{cps=16}Y ahora, un mensaje de nuestros patrocinadores{/cps}"
+    stop sound fadeout 0.5
+    play sound "audio/addmusic.mp3" volume 0.17 
+    plAdd "{cps=20}¿Te sientes solo? ¿Estas buscando compañía y necesitas dinero?{/cps}"
+    plAdd "{cps=20}¡Pues ahora puedes alquilar tu habitación semanalmente con la mejor compañía del mercado!{/cps}"
+    p "{cps=5}Mmmmmm...{/cps}{cps=16}No suena mal del todo{/cps}"
+    plAdd "{cps=18}Hacemos el presupuesto y te ayudamos a venderla rápido y seguro. ¡En menos de una semana!{/cps}"
+    plAdd "{cps=16}Llama hoy al 661 y nosotros nos encargamos del resto!{/cps}"
+    $ renpy.notify("Nuevo número registrado: 661")
+    $ contacts.append("661")
     pause 0.5
-    play sound "audio/alarm-clock.mp3" fadein(0.5)
-    narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y emitir esa irritante música.{/cps}"
-    pause 1
-    show bg weikiweiki
-    show screen stage_day
-    #narrator "{cps=16}{/cps}" 
-   
-    narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida independiente.{/cps}"
-    narrator "{cps=4}Supongo{/cps}"
-    scene black
-    pause 1
-    play sound "wake_up.mp3"
-    narrator "{cps=16}Siendo tan pronto tienes todo el tiempo para hacer lo que quieras… Pero lo mejor será desayunar para empezar el día{/cps}" 
-    #call para usar el screen, básico
-    call screen habitacion
-
-
-   
+    stop sound fadeout 0.5
+    play sound "audio/addmusic2.mp3" volume 0.17 fadein 0.5
+    plAdd2 "{cps=16}Esta semana la comida viene a tu casa con descuento{/cps}"
+    #para añadir el signo de porcentaje en un string se debe poner doble porcentaje, ya que el primero es para escapar el segundo
+    plAdd2 "{cps=15}Consigue hasta un 50%% en tu próximo pedido a domicilio. {/cps}"
+    plAdd2 "{cps=18}Llama ya al 627 y pide lo que quieras.{/cps}"
+    $ renpy.notify("Nuevo número registrado: 627")
+    $ contacts.append("627")
