@@ -10,6 +10,13 @@ style txtRoom:
     color "#f0dfdc"
 style txtActions:
     color "#3a0c0c"
+style txtContacts:
+    size 40
+    color "#273529"
+    font "Pixel Digivolve.otf"
+   
+style viewport:
+    background None
 #Actualizar todo lo relacionado con el tiempo
 default hour = 0
 default passingHours = "Desayunar"
