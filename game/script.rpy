@@ -1,6 +1,8 @@
 # Coloca el código de tu juego en este archivo.
 # Declara los personajes usados en el juego como en el ejemplo:
 define p = Character("[player_name]")
+define plNews = Character(("Presentador de noticias"), color="#9ba5d8")
+define plAdd = Character (("Anunciador Entusiastico"), color="#f1f1d3")
 #variable que determina que hora va a ser
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
 style txtRoom:
@@ -10,46 +12,46 @@ style txtActions:
 #Actualizar todo lo relacionado con el tiempo
 default hour = 0
 default passingHours = "Desayunar"
-default day_moment = "Mañana"
-
+default day_moment = "Intro"
+default encuentro = 0
 init python:
 
     def update_time():
 
         global passingHours, hour
 
-        if hour == 0:
+        if hour == 1:
             passingHours = "Desayunar"
             
 
-        elif hour == 1:
+        elif hour == 2:
             passingHours = "Comer"
             
 
-        elif hour == 2:
+        elif hour == 3:
             passingHours = "Cenar"
             
 
 screen stage_day():
+    zorder 100
     frame:
         # Cambia el estado del día dependiendo de la hora
-        if hour == 0:
+        if hour == 1 or hour == 0:
             $ day_moment = "Mañana"
             
 
-        elif hour == 1:
+        elif hour == 2:
             $ day_moment = "Tarde"
             
 
-        elif hour == 2:
+        elif hour == 3:
             $ day_moment = "Noche"
 
         xalign 0.95  
         yalign 0.05
         padding (15, 10)
-
         # El texto que se mostrará en pantalla
-        text "[day_moment]" size 24 color "#f0dfdc"
+        text "[day_moment]" size 32  color "#3a0c0c"
 screen habitacion():
         #solo como recordatorio, screen trabaja añadiendo los pngs directamente, el bg solo sirve en labels y demás
         add "bg mainroom.png"
@@ -77,7 +79,7 @@ screen pasillo():
     add "bg hall.png"
     textbutton "Habitacion":
         text_style "txtRoom"
-        xpos 850
+        xpos 1050
         ypos 1000
         action [Hide("pasillo"), Show("habitacion")]
     textbutton "Cocina":
@@ -98,12 +100,12 @@ screen cocina():
         text_style "txtActions"
         xpos 960
         ypos 650
-        action Call("eat")
+        action [Hide("cocina"), Jump("eat")]
     textbutton "Atrás":
         text_style "txtRoom"
         xpos 850
         ypos 1000
-        action [Hide("kitchen"), Show("pasillo")]
+        action [Hide("cocina"), Show("pasillo")]
             
 screen livingroom():
     add "bg livingroom.png"
@@ -126,41 +128,47 @@ screen puerta():
         text_style "txtRoom"
         xpos 1000
         ypos 250
+        action Call("lookoutside")
+
         
 
 #todas las interacciones
 label Bed:
     show bg mainroom
-    if hour == 1:
+    if hour == 1 or hour == 0:
         narrator "Aquí yace tu cómoda cama, de la cual te acabas de levantar."
         narrator "{cps=4}. . . {/cps}"
-        narrator "no creo que quieras seguir durmiendo"
+        narrator "No creo que quieras seguir durmiendo"
     elif hour == 2:
-        narrator "Vas a echarte una siesta de verdad"
+        narrator "Vas a echarte una siesta de verdad? Y no prefieres disfrutar del tiempo libre que tienes?"
     call screen habitacion
 return
 label eat:
 
     if passingHours == "Desayunar":
-        $ hour += 1
-        narrator "Ya era hora, pero será mejor desayunar en el salón"
+        show bg kitchen
+        $ hour == 1
+        narrator "{cps=16}Ya era hora, pero será mejor desayunar en el salón{/cps}"
+        narrator "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"        
         window hide
-        play sound "audio/kitchen.m3p" 
-        pause 1.5
+        play sound "audio/kitcken.mp3" 
+        pause 2.5
         stop sound
         show screen hall2
-        #hall2 es la pespectiva de la cocina y la puerta
-        pause 1
+        #hall2 es la pespectiva de la cocina y la puerta        
+        pause 1    
         show screen livingroom
         pause 0.5
         narrator "Bon apetite"
         
 
     elif passingHours == "Comer":
+        $ hour == 2
         p "Por fin"
         p "Me muero de hambre"
 
     elif passingHours == "Cenar":
+        $ hour == 3
         "Es hora de cenar."
 
     return
@@ -171,8 +179,32 @@ label SopadeLetras:
     narrator "Curiosamente abierta por la página 27"
     call screen habitacion
 return
-
-
+label desayunar:
+    $ hour == 1
+    narrator "{cps=16}Ya era hora, pero será mejor desayunar en el salón{/cps}"
+    narrator "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"        
+    window hide
+    play sound "audio/kitcken.mp3" 
+    pause 2.5
+    stop sound
+    show screen hall2
+    #hall2 es la pespectiva de la cocina y la puerta        pause 1    
+    show screen livingroom
+    pause 0.5
+    narrator "Bon apetite"
+        
+label lookoutside:
+    if encuentro == 0:
+        show bg outside
+        narrator "No parece haber mucho movimiento ahí fuera"
+    call screen puerta
+    
+    
+label news:
+    show bg eater
+    play sound "audio/comer.mp3"
+    pause 0.5
+    narrator "{cps=16}Espero que este bueno el desayuno, mientras tanto, por que no vemos las noticias?{/cps}"
    
 # El juego comienza aquí.
 label start:
@@ -213,7 +245,9 @@ label start:
             narrator "{cps=16}Supongo que es lo normal con el paso del tiempo{/cps}" 
         "No":
             narrator "{cps=16}No te preocupes, en algún momento te acostumbrarás.{/cps}" 
-    narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar a tu móvil que no paraba de vibrar y emitir esa irritante música.{/cps}"
+    pause 0.5
+    play sound "audio/alarm-clock.mp3" fadein(0.5)
+    narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y emitir esa irritante música.{/cps}"
     pause 1
     show bg weikiweiki
     show screen stage_day
