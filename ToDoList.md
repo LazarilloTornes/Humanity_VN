@@ -4,8 +4,9 @@ Things to finish
 - Write and develop the "News"
 - Structure the history
 - Food and Money system
-- Phone and Sevicies
-
+- Phone and Sevices
+Phone
+- The phone must contain information about: day, money, contact list with the services
 Time
 - The days are divided in 3: Morning, Noon, Afternoon
 - The fases are controlled by the actions "Breakfast, Lunch, Dinner"
