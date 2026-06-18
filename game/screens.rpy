@@ -254,7 +254,9 @@ screen quick_menu():
             textbutton _("Guardar R.") action QuickSave()
             textbutton _("Cargar R.") action QuickLoad()
             textbutton _("Prefs.") action ShowMenu('preferences')
-            textbutton _("Teléfono") action Show("phone")
+            if phone_disponible: 
+                textbutton _("Teléfono") action Show("phone"):
+                    text_style "txtPhone"
 
 
 ## Este código asegura que la pantalla 'quick_menu' se muestra en el juego,
