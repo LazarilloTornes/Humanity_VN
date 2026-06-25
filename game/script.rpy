@@ -7,7 +7,7 @@ define plAdd2 = Character (("Anunciador Tranquilo"), color="#d4f1d3")
 #variable que determina que hora va a ser
 #image bg_bathroom = "bathroom.png"
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
-image eat = "bg eater.jpeg"
+image eat = im.Scale("bg eater.jpeg", 1920, 1080)
 image mainroom = "mainroom.png"
 #variable que controla el paso de los días, el día 0 es básicamente la intro
 default day = 0
@@ -180,6 +180,7 @@ screen sopa_letras():
                 action Hide("sopa_letras")
 label winSopaLetras:
     hide screen sopa_letras
+    $ hour += 1
     "Has completado la Sopa de Letras de hoy"
     "Sientes que has invertido más tiempo de lo que deberías en este juego"
     menu:
@@ -192,7 +193,45 @@ label winSopaLetras:
 
         "No":
             hide screen sopa_letras
+            return
 #Minigames upcoming
+#Minesweeper game
+init python:
+    import random
+
+    class Minesweeper:
+
+        HIDDEN = 0
+        REVEALED = 1
+        FLAGGED = 2
+
+        def generate_board(self):
+
+
+        def reveal(self, x, y):
+
+        def flood_fill(self, x, y):
+
+
+        def toggle_flag(self, x, y):
+         
+
+        def check_victory(self):
+        
+screen minesweeper_screen():
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #que en vez de dividirse en partes el avance del día, cada actividad te consuma tiempo
@@ -200,6 +239,48 @@ label winSopaLetras:
 #Escribir
 #Leer
 
+default phone_tab = "home"
+default contacts = ["AAMamá","AAPapá"]
+default phone_open = False
+screen phone():
+    add "phone.png":
+        xalign 0.5
+        yalign 0.5
+    if phone_tab = "home":
+        imagebutton:
+            idle "closebutton.png"
+            hover "closebutton.png"
+            xpos 300
+            ypos 400
+        imagebutton:
+            idle "contactsbutton.png"
+            hover "contactsbutton.png"
+            xsize 60
+            ysize 60
+            xpos 880
+            ypos 340
+            action SetVariable(phone_tab, "contacts")
+    elif phone_tab == "contacts":
+        viewport:
+            xsize 210
+            ysize 125
+            xpos 870
+            ypos 350
+            scrollbars "vertical"
+            mousewheel True
+            draggable True
+                
+
+            vbox:
+                spacing 10
+                
+                for i in contacts:
+                    textbutton "[i]":
+                        text_style "txtContacts"
+    
+
+# textbutton "Teléfono":
+#     action CallScreen("phone")
 
 
 
@@ -208,7 +289,33 @@ label winSopaLetras:
 
 
 
-#Prueba de diálogo en init python
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #Actualizar todo lo relacionado con el tiempo
 default hour = 9
 default eathour = "Desayunar"
@@ -226,7 +333,7 @@ screen digital_clock():
         yalign 0.05
         padding (15, 10)
         # El texto que se mostrará en pantalla
-        text "[hour:02d]:00" size 32  color "#3a0c0c"
+        text "[hour:02d]:00" size 32  color "#3a0c0c" font "Pixel Digivolve.otf"
 
 
 label dlg_bed:
@@ -248,8 +355,12 @@ label dlg_wordsearch:
     if hour == 9:
         "Despues de desayunar podrías hacer una o dos"
         return
-
-    elif hour < 21:
+    elif hour == 13:
+        "Es hora de comer, mejor dejar la sopa de letras para otro momento"
+        return
+    elif hour == 20:
+        "Ya es hora de cenar, dejemos los pasatiempos para otro momento"
+    elif  hour < 21:
         "Quieres resolver una sopa de letras?"
         menu:
             "Sí":
@@ -264,7 +375,6 @@ label dlg_wordsearch:
 label dlg_eat:
     show kitchen
     if hour == 9:
-        $ hour += 1
         play sound "audio/kitchen.mp3"
         pause 2.5
         stop sound
@@ -335,9 +445,11 @@ label news:
     play sound "audio/comer.mp3" loop
     pause 5.0
     stop sound fadeout 0.5
-    narrator "{cps=16}Bueno, suficientes noticias por hoy, creo que es hora de ir a hacer la compra, aprovecha la mañana{/cps}"
+    narrator "{cps=16}Bueno, suficientes noticias por hoy, creo que es hora de ir a comprar todo lo que te falta{/cps}"
+    "De paso sales y aprovechas la mañana"
     play music "audio/ambientedia.mp3" loop fadein 0.5
     $ room = "livingroom"
+    $ hour += 1
     hide eat
     return
 
@@ -346,9 +458,10 @@ label lookoutside():
     "No parece haber mucho movimiento ahí fuera"
     hide bg outside
     return
-    
-       
-
+label minesweepertest():  
+    $ ms = Minesweeper(10, 10, 15)
+    call screen minesweeper_screen     
+    return
 
 
 
@@ -357,6 +470,12 @@ label lookoutside():
 screen Mr_Game_and_Watch():
     if room == "mainroom":
         add "mainroom.png"
+        imagebutton:
+            idle "interactive.png"
+            hover "interactive.png"
+            xpos 600
+            ypos 400
+            action Call("minesweepertest")
         imagebutton:
             idle "interactive.png"
             hover "interactive.png"
@@ -459,6 +578,7 @@ screen Mr_Game_and_Watch():
 
 
 label start:
+    
     #antes de el nombre y pronombre los avisos del contenido de este juego
     narrator "Antes de comenzar,desearía dirigirme a ti de alguna forma, así que dime"
     $ player_name = renpy.input("¿Cómo te llamas?")
@@ -497,9 +617,10 @@ label start:
             narrator "{cps=16}No te preocupes, en algún momento te acostumbrarás.{/cps}" 
     pause 0.5
     play sound "audio/alarm-clock.mp3" fadein(0.5)
-    narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y emitir esa irritante música.{/cps}"
+    show screen digital_clock
+    narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y sonar{/cps}"
     pause 1
-    show bg weikiweiki
+    show bg weikiweiki 
     #narrator "{cps=16}{/cps}" 
     narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida independiente.{/cps}"
     narrator "{cps=4}Supongo{/cps}"
