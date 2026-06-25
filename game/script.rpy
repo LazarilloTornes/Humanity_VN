@@ -5,7 +5,18 @@ define plNews = Character(("Presentador de noticias"), color="#9ba5d8")
 define plAdd = Character (("Anunciador Entusiastico"), color="#f1f1d3")
 define plAdd2 = Character (("Anunciador Tranquilo"), color="#d4f1d3")
 #variable que determina que hora va a ser
+#image bg_bathroom = "bathroom.png"
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
+
+
+#variable que controla el paso de los días, el día 0 es básicamente la intro
+default day = 0
+
+
+
+
+
+#Todos los estilos de letras
 style txtRoom:
     color "#f0dfdc"
 style btnSoup:
@@ -33,8 +44,12 @@ style txtPhone:
     size 30
     color "#e0e8e1"
     font "Pixel Digivolve.otf"
-#Minijuegos 
 
+
+
+
+#Minijuegos 
+#Sopa de Letras
 default inicio = None
 default seleccion = []
 default palabras_noencontradas = ["AVENIDA","ENTRADA","HIELO","MOMENTO","PIERNA","PINGO","PROTESTA","RECUERDO","CAYO"]
@@ -120,11 +135,8 @@ init python:
                       
     def restart_seleccion():        
         store.seleccion = []
-       
-
-    
-
 screen sopa_letras():
+    add "bg soup.png"
     zorder 100 
     timer 0.1 repeat True action If(
         len(palabras_noencontradas) == 0,
@@ -165,7 +177,6 @@ screen sopa_letras():
                 xpos 500
                 ypos 800
                 action Hide("sopa_letras")
-
 label winSopaLetras:
     hide screen sopa_letras
     "Has completado la Sopa de Letras de hoy"
@@ -180,142 +191,263 @@ label winSopaLetras:
 
         "No":
             hide screen sopa_letras
-            
-    
+#Minigames upcoming
+
+
+#que en vez de dividirse en partes el avance del día, cada actividad te consuma tiempo
+#Ver la tele
+#Escribir
+#Leer
+
+
+
+
+
+#Prueba de diálogo en init python
 #Actualizar todo lo relacionado con el tiempo
-default hour = 0
-default passingHours = "Desayunar"
+default hour = 9
+default eathour = "Desayunar"
 default day_moment = "Intro"
-default encuentro = 0
 default phone_disponible = False
-default current_call = None
 
-init python:
+screen digital_clock():
 
-    def update_time():
-
-        global passingHours, hour
-
-        if hour == 1:
-            passingHours = "Desayunar"
-            
-
-        elif hour == 2:
-            passingHours = "Comer"
-            
-
-        elif hour == 3:
-            passingHours = "Cenar"
-            
-
-screen stage_day():
     zorder 100
     frame:
         # Cambia el estado del día dependiendo de la hora
-        if hour == 1 or hour == 0:
-            $ day_moment = "Mañana"
-            
-
-        elif hour == 2:
-            $ day_moment = "Tarde"
-            
-
-        elif hour == 3:
-            $ day_moment = "Noche"
-
         xalign 0.95  
         yalign 0.05
         padding (15, 10)
         # El texto que se mostrará en pantalla
         text "[day_moment]" size 32  color "#3a0c0c"
 
-default contacts = ["AA Mamá", "AA Papá"]
-default inventario = []
-screen phone(): 
-    add "phone.png":
-        xalign 0.5
-        yalign 0.5
-    zorder 100
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Habitaciones de la casa
+screen habitacion():
+    #solo como recordatorio, screen trabaja añadiendo los pngs directamente, el bg solo sirve en labels y demás
+    add "mainroom.png"
     imagebutton:
-            idle "closebutton.png"
-            hover "closebutton.png"
-            xpos 300
-            ypos 400
-            action Hide("phone")
+        idle "interactive.png"
+        hover "interactive.png"
+        xpos 1150
+        ypos 500
+        action Hide("habitacion"),Function(dlg_bed)
     imagebutton:
-            idle "contactsbutton.png"
-            hover "contactsbutton.png"
-            xsize 60
-            ysize 60
-            xpos 850
-            ypos 325
-            action Hide("phone"), Show("contacts")                
-screen contacts():
-    add "phone.png":
-        xalign 0.5
-        yalign 0.5
-    zorder 102
-    frame:
-        imagebutton:
-            idle "closebutton.png"
-            hover "closebutton.png"
-            xpos 300
-            ypos 400
-            action Hide("contacts")
-        
-        background None 
-        xsize 210
-        ysize 125
-        xpos 870
-        ypos 350
-        viewport:
-            scrollbars "vertical"
-            mousewheel True
-            draggable True
+        idle "interactive.png"
+        hover "interactive.png"
+        xpos 400
+        ypos 710
+        action Hide("habitacion"),Function(dlg_wordsearch)
+    textbutton "Pasillo":
+        text_style "txtRoom"
+        xpos 850
+        ypos 1000
+        action Show("pasillo"), Hide("habitacion")
+#renpy.say hace de dialogo abriendo una nueva interacción, que pasa, screen se cuenta como otra interacción y se interceptan
+screen pasillo():
+    add "hall.png"
+    textbutton "Habitacion":
+        text_style "txtRoom"
+        xpos 1050
+        ypos 1000
+        action [Hide("pasillo"), Show("habitacion")]
+    textbutton "Cocina":
+        text_style "txtRoom"
+        xpos 750
+        ypos 510
+        action [Hide("pasillo"), Show("cocina")]
+    textbutton "Puerta":
+        text_style "txtRoom"
+        xpos 960
+        ypos 450
+        action [Hide("pasillo"), Show("puerta")]
+screen cocina():
+    add "kitchen.png"
+    textbutton "Comer algo":
+        text_style "txtActions"
+        xpos 960
+        ypos 650
+        action [Hide("cocina"), Function(dlg_eat)]
+    textbutton "Atrás":
+        text_style "txtRoom"
+        xpos 850
+        ypos 1000
+        action [Hide("cocina"), Show("pasillo")]         
+screen livingroom():
+    add "livingroom.png"
+    imagebutton:
+            idle "interactive.png"
+            hover "interactive.png"
+            xpos 400
+            ypos 710
+    imagebutton:
+        idle "interactive.png"
+        hover "interactive.png"
+        xpos 850
+        ypos 500
+    textbutton "Atrás":
+        text_style "txtRoom"
+        xpos 850
+        ypos 1000
+        action [Hide("livingroom"), Show("pasillo")] 
+screen hall2():
+    add "hall2.png"
+screen puerta():
+    add "door.png"
+    textbutton "Atrás":
+        text_style "txtRoom"
+        xpos 1000
+        ypos 1000
+        action [Hide("puerta"), Show("pasillo")]
+    textbutton "Mirar":
+        text_style "txtRoom"
+        xpos 1000
+        ypos 250
+        action [Hide("puerta"), Function(lookoutside)]
 
-            vbox:
-                spacing 10
-                for i in contacts:
-                    textbutton "[i]":
-                        text_style "txtContacts"
-                        action SetVariable("current_call", i)
-                        if current_call == "AA Mamá":
-                            action Call("response_call_mum")
-                        elif current_call == "AA Papá":
-                            action Call("response_call_dad")
-                        elif current_call == "661":
-                            action Call("response_call_661")
-                        elif current_call == "661":
-                            action Call("response_call_627")
-label response_call_mum:
-    "{cps=3}. . .{/cps}"
-    "Esperas por un buen rato a que coja la llamada"
-    "Sin embargo nunca contesta"
-    return
-label response_call_dad:
-    "{cps=3}. . .{/cps}"
-    "Esperas por un buen rato a que coja la llamada"
-    "Sin embargo nunca contesta"
-    return
-label response_call_661:
-    "en desarrollo"
-    return
-label response_call_627:
-    "en desarrollo"
-    return
+#Telefono
 
 
-# El juego comienza aquí.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+default doorEvent = 0
+
+#prueba
+init python:
+#dlg stands for all the dialog and interactions, and only for that
+    #Interacciones dentro de la habitación
+    def dlg_bed:
+        renpy.show("mainroom.png")
+        if 9 <= hour <= 13:
+            renpy.say(None,"Aquí yace tu cómoda cama, de la cual te acabas de levantar.")
+            renpy.say(None,"{cps=4}. . . {/cps}")
+            renpy.say(None,"No creo que quieras seguir durmiendo")
+            renpy.show_screen("habitacion")
+        elif 14 <= hour <= 19:
+            renpy.say(None, narrator "Vas a echarte una siesta de verdad? Y no prefieres disfrutar del tiempo libre que tienes?")
+    def dlg_wordsearch:
+        renpy.show("mainroom.png")
+        renpy.say(None, "Es la antigua revista de Sopa de Letras de tu abuelo. Parece estar solo en Español")
+        if hour == 9:
+            renpy.say(None, "Despues de desayunar podrías hacer una o dos")
+        elif hour < 21:
+            renpy.say(None, "Quieres resolver una sopa de letras?")
+            playwordsearch = renpy.display_menu([
+                ("Sí", True),
+                ("No", False)
+            ])
+
+            if playwordsearch:
+                renpy.show_screen("sopa_letras")
+            else:
+                renpy.say(None, "Mejor para más tarde")
+#por ahora la habitacion no tiene más
+    def dlg_eat:
+        renpy.show("kitchen.png")
+            if 12 <= hour <= 14:
+                renpy.sound.play("audio/kitchen.mp3")
+                renpy.pause(2.5)  # espera 3 segundos
+                renpy.sound.stop(channel="sound")
+                renpy.say(None,"{cps=16}Será mejor desayunar en el salón{/cps}")
+                renpy.say(None,"{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}")
+                renpy.hide_window()
+                renpy.show_screen("hall2")
+                renpy.pause(1)
+                renpy.show_screen("livingroom")
+                renpy.pause(0.5)
+                renpy.say(None,"Bon Apetite")
+                renpy.show("bg eater")
+                renpy.sound.play("audio/comer.mp3")
+                renpy.pause(0.5)
+                renpy.say(None, "{cps=16}Espero que este bueno el desayuno, mientras tanto, por que no vemos las noticias?{/cps}")
+                renpy.sound.play("audio/button.mp3")
+                renpy.sound.stop(channel="sound")
+    
+    def news():
+        if day == 0:
+    def lookoutside()
+    if doorEvent == 0:
+        renpy.show("bg outside")
+        renpy.say(None,"No parece haber mucho movimiento ahí fuera")
+        renpy.show_screen("puerta")
+    elif doorEvent == 1:
+        # menu:
+        #     "Seguro que quieres salir ya? no te dejas nada?"
+        #     "Salir ya":
+        #         "En desarrollo"
+        #     "Espera un momento":
+        #         call screen door
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 label start:
-    scene black
-    narrator "Antes de comenzar,desearía dirigirme a ti de alguna forma, así que dime"
+    #antes de el nombre y pronombre los avisos del contenido de este juego
+    narrator "Antes de comenzar,desearía dirigirme a ti de alguna forma, así que dime")
     $ player_name = renpy.input("¿Cómo te llamas?")
     $ player_name = player_name.strip()
     if player_name == "":
         $ player_name = "Bolonga"
-
-
-
     menu:
         "Una última cosa, para referirme a ti prefieres?"
 
@@ -328,6 +460,8 @@ label start:
             $ genero = "mujer"
             $ pronombre = "ella"
             $ articulo = "a"
+
+
     play music "audio/ambientedia.mp3" loop
     #INTRODUCCIÓN - CONTEXTO
     narrator "{cps=9}La soledad{/cps}"
@@ -350,176 +484,18 @@ label start:
     pause 1
     show bg weikiweiki
     $ phone_disponible = True
-    show screen stage_day
+    call screen habitacion
     #narrator "{cps=16}{/cps}" 
    
     narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida independiente.{/cps}"
     narrator "{cps=4}Supongo{/cps}"
-    scene black
     pause 1
     play sound "wake_up.mp3"
     narrator "{cps=16}Siendo tan pronto tienes todo el tiempo para hacer lo que quieras… Pero lo mejor será desayunar para empezar el día{/cps}" 
-    #call para usar el screen, básico
     call screen habitacion
-
-
-#todas las habitaciones de la casa, se usan como screen para poder interactuar con ellas y moverse entre ellas
-screen habitacion():
-        #solo como recordatorio, screen trabaja añadiendo los pngs directamente, el bg solo sirve en labels y demás
-        add "bg mainroom.png"
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 1150
-            ypos 500
-            action Call("Bed")
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 400
-            ypos 710
-            action Call("SopadeLetras")
-        textbutton "Pasillo":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action Show("pasillo")
-#renpy.say hace de dialogo abriendo una nueva interacción, que pasa, screen se cuenta como otra interacción y se interceptan
-
-
-screen pasillo():
-    add "bg hall.png"
-    textbutton "Habitacion":
-        text_style "txtRoom"
-        xpos 1050
-        ypos 1000
-        action [Hide("pasillo"), Show("habitacion")]
-    textbutton "Cocina":
-        text_style "txtRoom"
-        xpos 750
-        ypos 510
-        action [Hide("pasillo"), Show("cocina")]
-    textbutton "Puerta":
-        text_style "txtRoom"
-        xpos 960
-        ypos 450
-        action [Hide("pasillo"), Show("puerta")]
-
-
-screen cocina():
-    add "bg kitchen.png"
-    textbutton "[passingHours]":
-        text_style "txtActions"
-        xpos 960
-        ypos 650
-        action [Hide("cocina"), Jump("eat")]
-    textbutton "Atrás":
-        text_style "txtRoom"
-        xpos 850
-        ypos 1000
-        action [Hide("cocina"), Show("pasillo")]
-            
-screen livingroom():
-    add "bg livingroom.png"
-    imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 400
-            ypos 710
-    imagebutton:
-        idle "interactive.png"
-        hover "interactive.png"
-        xpos 850
-        ypos 500
-    
-    textbutton "Atrás":
-
-        text_style "txtRoom"
-        xpos 850
-        ypos 1000
-        action [Hide("livingroom"), Show("pasillo")] 
-screen hall2():
-    add "bg hall2.png"
-    
-screen puerta():
-    add "bg door.png"
-    textbutton "Atrás":
-        text_style "txtRoom"
-        xpos 1000
-        ypos 1000
-        action [Hide("puerta"), Show("pasillo")]
-    textbutton "Mirar":
-        text_style "txtRoom"
-        xpos 1000
-        ypos 250
-        action [Hide("puerta"), Call("lookoutside")]
-
-        
-
 #todas las interacciones
-label Bed:
-    show bg mainroom
-    if hour == 1 or hour == 0:
-        narrator "Aquí yace tu cómoda cama, de la cual te acabas de levantar."
-        narrator "{cps=4}. . . {/cps}"
-        narrator "No creo que quieras seguir durmiendo"
-    elif hour == 2:
-        narrator "Vas a echarte una siesta de verdad? Y no prefieres disfrutar del tiempo libre que tienes?"
-    call screen habitacion
-return
-label eat:
 
-    if passingHours == "Desayunar":
-        show bg kitchen
-        $ hour == 1
-        narrator "{cps=16}Ya era hora, pero será mejor desayunar en el salón{/cps}"
-        play sound "audio/kitcken.mp3" 
-        pause 2.5
-        stop sound
-        narrator "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"        
-        window hide
-        show screen hall2
-        #hall2 es la pespectiva de la cocina y la puerta        
-        pause 1    
-        show screen livingroom
-        pause 0.5
-        narrator "Bon apetite"
-        jump news
-        
 
-    elif passingHours == "Comer":
-        $ hour == 2
-        p "Por fin"
-        p "Me muero de hambre"
-
-    elif passingHours == "Cenar":
-        $ hour == 3
-        "Es hora de cenar."
-
-    return
-
-label SopadeLetras:
-    show bg mainroom
-    narrator "Es la antigua revista de Sopa de Letras de tu abuelo."
-    narrator "Curiosamente abierta por la página 27"
-    menu:
-        "Podrías llevartela"
-        "Sí":
-            narrator "Puede ser una buena manera de pasar el tiempo, y además es gratis"
-            $ renpy.notify("Se ha añadido Sopa de Letras a tu inventario")
-            $ inventario.append("Sopa de Letras")
-        "No":
-            narrator "Decides dejar la revista en su sitio."
-    call screen habitacion
-return
-
-        
-label lookoutside:
-    if encuentro == 0:
-        show bg outside
-        narrator "No parece haber mucho movimiento ahí fuera"
-    call screen puerta
-    
     
 label news:
     hide screen hall2
@@ -558,7 +534,10 @@ label news:
     play sound "audio/comer.mp3" loop
     pause 5.0
     stop sound fadeout 0.5
-    narrator "{cps=16}Bueno, ahora que has desayunado y visto las noticias, es hora de salir a la calle y ver que te depara el día{/cps}"
+    narrator "{cps=16}Bueno, suficientes noticias por hoy, creo que es hora de ir a hacer la compra, aprovecha la mañana{/cps}"
     play music "audio/ambientedia.mp3" loop fadein 0.5
-    call screen livingroom
+    show screen livingroom
+
     
+#labels y python para lógica
+#screens para la interfaz
