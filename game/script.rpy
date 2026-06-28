@@ -9,6 +9,7 @@ define plAdd2 = Character (("Anunciador Tranquilo"), color="#d4f1d3")
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
 image eat = im.Scale("bg eater.jpeg", 1920, 1080)
 image mainroom = "mainroom.png"
+
 #variable que controla el paso de los días, el día 0 es básicamente la intro
 default day = 0
 default room = "mainroom"
@@ -32,6 +33,12 @@ style txtContacts:
     color "#273529"
     line_spacing 2
     font "Pixel Digivolve.otf"
+style txtMinesweeper:
+    size 35
+    color "#273529"
+    padding (12, 12)
+    background "#cddbc8"
+    font "Pixel Digivolve.otf"
 style txtSoup:
     size 35
     color "#273529"
@@ -43,7 +50,11 @@ style txtSelected:
     background "#ffd54a"
 style txtPhone:
     size 30
-    color "#e0e8e1"
+    color "#1e2c20"
+    font "Pixel Digivolve.otf"
+style txtClock:
+    size 32
+    color "#3a0c0c" 
     font "Pixel Digivolve.otf"
 
 
@@ -53,9 +64,13 @@ style txtPhone:
 #Sopa de Letras
 default inicio = None
 default seleccion = []
+default tablero_deldia = []
+default palabras_deldia = []
+#para más adelante, crear los archivos de tablero.rpy más adelante
 default palabras_noencontradas = ["AVENIDA","ENTRADA","HIELO","MOMENTO","PIERNA","PINGO","PROTESTA","RECUERDO","CAYO"]
 default palabras_encontradas = []
 default arrastrando = False
+
 init python:
     TABLERO=[
         ["X","Q","Y","P","P","G","X","A","Z","H","P","H"],
@@ -193,45 +208,165 @@ label winSopaLetras:
 
         "No":
             hide screen sopa_letras
-            return
+            jump main_loop
 #Minigames upcoming
 #Minesweeper game
+
+
+
+
+#celd_status = 0 nothing
+#celd_status = -1 mine
+
+#what coordenates I have to search
+# x-1,y-1   x,y-1   x+1,y-1
+# x-1,y     x,y     x+1,y
+# x-1,y+1   x,y+1   x+1,y+1
 init python:
     import random
-
-    class Minesweeper:
-
-        HIDDEN = 0
-        REVEALED = 1
-        FLAGGED = 2
-
-        def generate_board(self):
+    
+    mine = []
+    WIDTH = 8 #puede ser el número que sea
+    HEIGHT = 8
+    MINES = 8
 
 
-        def reveal(self, x, y):
+    all_posible_positions = []
+    for y in range(HEIGHT):
+        for x in range(WIDTH):
+            all_posible_positions.append((x, y))
+    #Working with the visual grid thingy 
+    HIDDEN = 0
+    REVEALED = 1
+    FLAGGED = 2
+    #Establish all the celds in 0 not mine
+    #Board stores "mine" or "number"
+    board = [
+        [0 for x in range(WIDTH)]
+        for y in range(HEIGHT)
+    ]
+    #State stores the "revealed", "hiden" and "Flag"
+    state = [
+        [HIDDEN for x in range(WIDTH)]
+        for y in range(HEIGHT)
+    ]
 
-        def flood_fill(self, x, y):
+    
+    mines = random.sample(all_posible_positions,MINES) 
+    for x,y in mines:
+        board[y][x] = -1 #Establish all the coordenates with mines
 
 
-        def toggle_flag(self, x, y):
-         
+    def count_mines(x, y):
 
-        def check_victory(self):
-        
-screen minesweeper_screen():
+        count = 0
+
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+
+                if dx == 0 and dy == 0:
+                    continue
+
+                nx = x + dx
+                ny = y + dy
+
+                if 0 <= nx < WIDTH and 0 <= ny < HEIGHT:
+
+                    if board[ny][nx] == -1:
+                        count += 1
+        return count
+    def generate_numbers():
+
+        for y in range(HEIGHT):
+            for x in range(WIDTH):
+
+                if board[y][x] == -1:
+                    continue
+
+                board[y][x] = count_mines(x, y)
+
+    def flood_fill(x, y):
+
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+
+                nx = x + dx
+                ny = y + dy
+
+                if not (0 <= nx < WIDTH and 0 <= ny < HEIGHT):
+                    continue
+
+                if state[ny][nx] == REVEALED:
+                    continue
+
+                if board[ny][nx] == -1:
+                    continue
+
+                state[ny][nx] = REVEALED
+
+                # if empty, keep expanding
+                if board[ny][nx] == 0:
+                    flood_fill(nx, ny)
+
+
+    generate_numbers()
+
+    def reset_game():
+        global board, state, mines
+        board = [
+            [0 for x in range(WIDTH)]
+            for y in range(HEIGHT)
+        ]
+        #State stores the "revealed", "hiden" and "Flag"
+        state = [
+            [HIDDEN for x in range(WIDTH)]
+            for y in range(HEIGHT)
+        ]
+        mines = random.sample(all_posible_positions,12) 
+        for x,y in mines:
+            board[y][x] = -1 #Establish all the coordenates with mines
+            count_mines(x,y)
+            generate_numbers()
 
 
 
+    #I mean, this is pretty simple
+    def reveal_cell(x, y):
+        if state[y][x] == REVEALED:
+            return
+        state[y][x] = REVEALED
+        if board[y][x] == -1:
+            renpy.notify( "Boom!")
+            return
+        # if empty → flood fill
+        if board[y][x] == 0:
+            flood_fill(x, y)
+        if check_win():
+            renpy.notify("¡Has ganado!")
+            renpy.restart_interaction()
+    def toggle_flag(x, y):
 
+        if state[y][x] == REVEALED:
+            return
+        if state[y][x] == FLAGGED:
+            state[y][x] = HIDDEN
+        else:
+            state[y][x] = FLAGGED
+    def check_win():
 
+        for y in range(HEIGHT):
+            for x in range(WIDTH):
 
+                # Si una casilla NO es mina y sigue oculta,
+                # aún no ha ganado.
+                if board[y][x] != -1 and state[y][x] != REVEALED:
+                    return False
 
-
-
-
-
-
-
+        return True
+    
+    
+default tool_mode = "REVELAR"  # or "flag"    
+default win = True    
 
 
 #que en vez de dividirse en partes el avance del día, cada actividad te consuma tiempo
@@ -239,28 +374,49 @@ screen minesweeper_screen():
 #Escribir
 #Leer
 
+
+
+
+#En efecto, el juego del buscaminas esta incorporado en el telefono
 default phone_tab = "home"
 default contacts = ["AAMamá","AAPapá"]
 default phone_open = False
 screen phone():
+    $ phone_open = True
     add "phone.png":
         xalign 0.5
         yalign 0.5
-    if phone_tab = "home":
+
+    if phone_tab == "home":
         imagebutton:
             idle "closebutton.png"
             hover "closebutton.png"
             xpos 300
             ypos 400
+            action SetVariable("phone_open", False), Hide("phone"), Jump("main_loop")
         imagebutton:
             idle "contactsbutton.png"
             hover "contactsbutton.png"
-            xsize 60
-            ysize 60
-            xpos 880
+            xsize 100
+            ysize 100
+            xpos 1280
             ypos 340
-            action SetVariable(phone_tab, "contacts")
+            action SetVariable("phone_tab", "contacts")
+        imagebutton:
+            idle "minesweeperbutton.png"
+            hover "minesweeperbutton.png"
+            xsize 100
+            ysize 100
+            xpos 1380
+            ypos 340
+            action SetVariable("phone_tab", "minesweeper")
     elif phone_tab == "contacts":
+        imagebutton:
+            idle "closebutton.png"
+            hover "closebutton.png"
+            xpos 300
+            ypos 400
+            action SetVariable("phone_tab", "home"), Jump("main_loop")
         viewport:
             xsize 210
             ysize 125
@@ -269,52 +425,76 @@ screen phone():
             scrollbars "vertical"
             mousewheel True
             draggable True
-                
-
             vbox:
                 spacing 10
                 
                 for i in contacts:
                     textbutton "[i]":
                         text_style "txtContacts"
-    
+    elif phone_tab == "minesweeper":
+        add "phone.png":
+            xalign 0.5
+            yalign 0.17
+            xsize 1000
+            ysize 2600
+        textbutton "[tool_mode]":
+            xpos 50
+            ypos 50
+            padding (15, 10)
+            background "#bbc5b9"
+            action If(tool_mode == "REVELAR",
+                    SetVariable("tool_mode", "BANDERIN"),
+                    SetVariable("tool_mode", "REVELAR"))
+        imagebutton:
+            idle "closebutton.png"
+            hover "closebutton.png"
+            xpos 300
+            ypos 400
+            action [Hide("minesweeper_screen"),SetVariable(phone_tab,"home"), Show("phone")],
+        imagebutton:
+            idle "closebutton.png"
+            hover "closebutton.png"
+            xpos 500
+            ypos 400
+            action Function(reset_game)
+        grid WIDTH HEIGHT:
+            spacing 2
+            xalign 0.5
+            yalign 0.5
+            for y in range(HEIGHT):
+                for x in range(WIDTH):
+                    if state[y][x] == HIDDEN:
+                        frame:
+                            xsize 60
+                            ysize 60
+                            background "#585d57"
 
-# textbutton "Teléfono":
-#     action CallScreen("phone")
+                            textbutton "":
+                                action If(tool_mode == "BANDERIN",
+                                Function(toggle_flag, x, y),
+                                Function(reveal_cell, x, y))
+                                xfill True
+                                yfill True
+                    elif state[y][x] == FLAGGED:
+                        frame:
+                            xsize 60
+                            ysize 60
+                            background "#585d57"
+                            text "🚩"
+                    else:
+                        frame:
+                            xsize 60
+                            ysize 60
+                            background "#ccc"   # light color
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                            if board[y][x] == -1:
+                                text "💣" style "txtMinesweeper"
+                                $ win = False
+                            elif board[y][x] > 0:
+                                text str(board[y][x]) style "txtMinesweeper"
+                            else:
+                                text "" style "txtMinesweeper"
+                            
 
 #Actualizar todo lo relacionado con el tiempo
 default hour = 9
@@ -324,16 +504,25 @@ default phone_disponible = False
 
 
 
-screen digital_clock():
+screen digital_clock:
 
     zorder 100
-    frame:
-        # Cambia el estado del día dependiendo de la hora
+    textbutton "[hour:02d]:00":
+        text_style "txtClock"
         xalign 0.95  
         yalign 0.05
         padding (15, 10)
-        # El texto que se mostrará en pantalla
-        text "[hour:02d]:00" size 32  color "#3a0c0c" font "Pixel Digivolve.otf"
+        background "#cddbc8"
+        action NullAction()
+    if phone_avaliable:
+        textbutton "Telefono":
+            text_style "txtPhone"
+            xalign 0.95  
+            yalign 0.05
+            padding (15, 10)
+            background "#a9b4a5"
+            action Show("phone")
+
 
 
 label dlg_bed:
@@ -458,24 +647,16 @@ label lookoutside():
     "No parece haber mucho movimiento ahí fuera"
     hide bg outside
     return
-label minesweepertest():  
-    $ ms = Minesweeper(10, 10, 15)
-    call screen minesweeper_screen     
-    return
 
 
 
 
 
+default phone_avaliable = True
 screen Mr_Game_and_Watch():
     if room == "mainroom":
         add "mainroom.png"
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 600
-            ypos 400
-            action Call("minesweepertest")
+
         imagebutton:
             idle "interactive.png"
             hover "interactive.png"
@@ -495,9 +676,14 @@ screen Mr_Game_and_Watch():
             action SetVariable("room", "pasillo")
     elif room == "pasillo":
         add "hall.png"
-        textbutton "Habitacion":
+        textbutton "Salón":
             text_style "txtRoom"
             xpos 1050
+            ypos 1000
+            action SetVariable("room", "livingroom")
+        textbutton "Habitacion":
+            text_style "txtRoom"
+            xpos 850
             ypos 1000
             action SetVariable("room", "mainroom")
         textbutton "Cocina":
@@ -622,20 +808,36 @@ label start:
     pause 1
     show bg weikiweiki 
     #narrator "{cps=16}{/cps}" 
-    narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida independiente.{/cps}"
+    narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida de independiente.{/cps}"
     narrator "{cps=4}Supongo{/cps}"
     pause 1
     play sound "wake_up.mp3"
     narrator "{cps=16}Siendo tan pronto tienes todo el tiempo para hacer lo que quieras… Pero lo mejor será desayunar para empezar el día{/cps}"
     hide bg weikiweiki
+    window hide
+    pause 1.0
+    $ renpy.notify("Acabas de coger el móvil")
     call screen Mr_Game_and_Watch
     jump main_loop
+
+label asking_game:
+    
+    menu:
+        "Quieres seguir jugando?"
+        "Sí":
+            return True
+        "No":
+            return False
 
 
 
 #Let the game be
 label main_loop:
-    call screen Mr_Game_and_Watch
+    
+    if phone_open == False:
+        call screen Mr_Game_and_Watch
+    else:
+        call screen phone
     jump main_loop
 
     
