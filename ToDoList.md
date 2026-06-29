@@ -16,6 +16,7 @@ Minigames to change the stage of the day(doesn't force the player to actually ch
   - News Paper
   - Mirar por la ventana y pensar
   - Ducha
+  - Nightmares
 
 
 Characters(16)
