@@ -382,10 +382,12 @@ default phone_tab = "home"
 default contacts = ["AAMamá","AAPapá"]
 default phone_open = False
 screen phone():
+    modal True
     $ phone_open = True
     add "phone.png":
-        xalign 0.5
+        xalign 0.85
         yalign 0.5
+        
 
     if phone_tab == "home":
         imagebutton:
@@ -409,14 +411,14 @@ screen phone():
             ysize 100
             xpos 1380
             ypos 340
-            action SetVariable("phone_tab", "minesweeper")
+            action SetVariable("phone_tab", "minesweeper"), Hide("phone")
     elif phone_tab == "contacts":
         imagebutton:
             idle "closebutton.png"
             hover "closebutton.png"
             xpos 300
             ypos 400
-            action SetVariable("phone_tab", "home"), Jump("main_loop")
+            action SetVariable("phone_tab", "home"), Show("phone")
         viewport:
             xsize 210
             ysize 125
@@ -517,7 +519,7 @@ screen digital_clock:
     if phone_avaliable:
         textbutton "Telefono":
             text_style "txtPhone"
-            xalign 0.95  
+            xalign 0.85  
             yalign 0.05
             padding (15, 10)
             background "#a9b4a5"
@@ -531,18 +533,19 @@ label dlg_bed:
         "Aquí yace tu cómoda cama, de la cual te acabas de levantar."
         "{cps=4}. . . {/cps}"
         "No creo que quieras seguir durmiendo"
+        hide mainroom
         call screen Mr_Game_and_Watch
 
     elif 14 <= hour <= 19:
         "Vas a echarte una siesta de verdad? Y no prefieres disfrutar del tiempo libre que tienes?"
     return
-    hide mainroom
+    
 
 label dlg_wordsearch:
     show mainroom
     "Es la antigua revista de Sopa de Letras de tu abuelo. Parece estar solo en Español"
     if hour == 9:
-        "Despues de desayunar podrías hacer una o dos"
+        "Despues de desayunar podrías hacer una"
         return
     elif hour == 13:
         "Es hora de comer, mejor dejar la sopa de letras para otro momento"
@@ -570,7 +573,7 @@ label dlg_eat:
         "{cps=16}Será mejor desayunar en el salón{/cps}"
         pause 2.0
         "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra esta tarde{/cps}"
-        hide window
+        window hide
         show hall2
         pause 1
         hide hall2
@@ -621,7 +624,7 @@ label news:
     plAdd "{cps=18}Hacemos el presupuesto y te ayudamos a venderla rápido y seguro. ¡En menos de una semana!{/cps}"
     plAdd "{cps=16}Llama hoy al 661 y nosotros nos encargamos del resto!{/cps}"
     $ renpy.notify("Nuevo número registrado: 661")
-    #$ contacts.append("661")
+    $ contacts.append("661")
     pause 0.5
     stop music fadeout 0.5
     play music "audio/addmusic2.mp3" volume 0.17 fadein 0.5
@@ -630,7 +633,7 @@ label news:
     plAdd2 "{cps=15}Consigue hasta un 50%% en tu próximo pedido a domicilio. {/cps}"
     plAdd2 "{cps=18}Llama ya al 627 y pide lo que quieras.{/cps}"
     $ renpy.notify("Nuevo número registrado: 627")
-    #$ contacts.append("627")
+    $ contacts.append("627")
     play sound "audio/comer.mp3" loop
     pause 5.0
     stop sound fadeout 0.5
@@ -642,16 +645,49 @@ label news:
     hide eat
     return
 
+
+
+
+default doorEvent = 0
 label lookoutside():
-    show bg outside
-    "No parece haber mucho movimiento ahí fuera"
-    hide bg outside
-    return
+    if doorEvent == 0:
+        show bg outside
+        "No parece haber mucho movimiento ahí fuera"
+        hide bg outside
+        return
+    elif doorEvent == 1:
+        menu:
+            "Quieres salir a hacer la compra?":
+                "Sí":
+                    jump hacer_compra
+                "Aún no...":
+
+                    jump main_loop
+
+label hacer_compra:
+    show black with dissolve 1
+    play sound "audio/door_slam.mp3"
+    stop music
+    pause 4
+    hide black with fade 1
+    #show bg supermarket dissolve
+    "Acabas llegando al supermercado más cercano de tu casa, y al que has estado yendo básicamente por todo."
+    "{cps=15} Así que hoy para comprar hay...{/cps}"
+    "Algo de carne"
+    "Algo de verduras"
+    "Alguna sopa de estas que se hacen en 5min"
+    "Macarrones"
+    "Quizás algun capricho"
+    "Lo suficiente para sobrevivir"
+    # hide bg supermarket with fade 1
+    # show bg butcher with dissolve 2
+
+
+    
 
 
 
-
-
+default door_actions = ["Mirar", "Salir"]
 default phone_avaliable = True
 screen Mr_Game_and_Watch():
     if room == "mainroom":
@@ -734,7 +770,7 @@ screen Mr_Game_and_Watch():
             xpos 1000
             ypos 1000
             action SetVariable("room", "pasillo")
-        textbutton "Mirar":
+        textbutton "[door_action[doorEvent]]":
             text_style "txtRoom"
             xpos 1000
             ypos 250
@@ -764,8 +800,21 @@ screen Mr_Game_and_Watch():
 
 
 label start:
-    
+    "Buenos días, tardes o noche"
+    "Antes de introducirte en el juego y contarte tu historia me gustaria avisarte de unas pequeñas cosillas"
+    "Este juego presenta contenido maduro, explícito e incluso gráfico, por lo cual debe de jugarse bajo estas condiciones"
+    "Sí eres sensible a alguno de estos temas, por favor, te ruego encarecidamente que no juegues, y si aún así te atreves, permíteme darte un consejo"
+    "Ningún contenido explícito y gráfico es obligatorio, sino que opcional"
+    menu:
+        "Desearias recivir un aviso de que opciones pueden conllevar a este tipo de contenido?"
+            "Sí":
+                "Perfecto"
+            "No":
+                "Sin problema"
+    "En cualquier caso, el juego esta lleno de muchas otras cosas de la que podrás disfrutar"
+    pause 2
     #antes de el nombre y pronombre los avisos del contenido de este juego
+    play music "audio/ambientedia.mp3" loop
     narrator "Antes de comenzar,desearía dirigirme a ti de alguna forma, así que dime"
     $ player_name = renpy.input("¿Cómo te llamas?")
     $ player_name = player_name.strip()
@@ -785,7 +834,7 @@ label start:
             $ articulo = "a"
 
 
-    play music "audio/ambientedia.mp3" loop
+   
     #INTRODUCCIÓN - CONTEXTO
     narrator "{cps=9}La soledad{/cps}"
     narrator "Algo nuevo para ti en esta nueva etapa de tu vida"
