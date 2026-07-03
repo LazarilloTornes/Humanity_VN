@@ -4,11 +4,45 @@ define p = Character(("[player_name]"), color="#cdcdcd")
 define plNews = Character(("Presentador de noticias"), color="#9ba5d8")
 define plAdd = Character (("Anunciador Entusiastico"), color="#f1f1d3")
 define plAdd2 = Character (("Anunciador Tranquilo"), color="#d4f1d3")
+define c = Character(("Carnicera"), color="#d99d9d")
 #variable que determina que hora va a ser
 #image bg_bathroom = "bathroom.png"
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
-image eat = im.Scale("bg eater.jpeg", 1920, 1080)
+image eat = im.Scale("bg eater.jpeg", 1800, 1080)
+image bg_superkmarket = im.Scale("bg supermarket.png", config.screen_width, config.screen_height)
+image bg_verduras = im.Scale("bg verdura.png", config.screen_width, config.screen_height)
+image bg_pasta = im.Scale("bg pasta.png", config.screen_width, config.screen_height)
+image bg_carniceria = im.Scale("bg carniceria.png", config.screen_width, config.screen_height)
+image bg_capricho = im.Scale("bg capricho.png", config.screen_width, config.screen_height)
+image bg_sopa_instantanea = im.Scale("bg sopa.png", config.screen_width, config.screen_height)
+image bg_ventana = im.Scale("bg ventana.png", config.screen_width, config.screen_height)
+image bg_pagar = im.Scale("bg pagar.jpg", config.screen_width, config.screen_height)
 image mainroom = "mainroom.png"
+image livingroom = "livingroom.png"
+image ticket = "ticket.png"
+
+
+
+
+
+
+
+
+#Dinero y comida
+default dinero = 50
+default food = 0
+
+#la comida suele durar 3 días, teniendo un máximo de 3
+#En la intro empieza en 0, sin embargo se obligará a la persona a hacer la compra
+#En la aplicación donde se mira eso aparecerá:
+#Tienes comida para: ["food"] días.
+#
+#
+
+
+
+
+
 
 #variable que controla el paso de los días, el día 0 es básicamente la intro
 default day = 0
@@ -193,22 +227,20 @@ screen sopa_letras():
                 xpos 500
                 ypos 800
                 action Hide("sopa_letras")
+default soup_of_the_day = False
 label winSopaLetras:
     hide screen sopa_letras
     $ hour += 1
     "Has completado la Sopa de Letras de hoy"
     "Sientes que has invertido más tiempo de lo que deberías en este juego"
-    menu:
-        "Deseas jugar otra vez?"
+    "Mañana podrás hacer otra diferente"
+    $ soup_of_the_day = True
+    hide screen sopa_letras
+    hide mainroom
+    jump main_loop
 
-        "Sí":
-            $ palabras_encontradas = []
-            $ palabras_noencontradas = ["AVENIDA","ENTRADA","HIELO","MOMENTO","PIERNA","PINGO","PROTESTA","RECUERDO","CAYO"]
-            
 
-        "No":
-            hide screen sopa_letras
-            jump main_loop
+
 #Minigames upcoming
 #Minesweeper game
 
@@ -252,7 +284,7 @@ init python:
     ]
 
     
-    mines = random.sample(all_posible_positions,MINES) 
+    mines = random.sample(all_posible_positions,8) 
     for x,y in mines:
         board[y][x] = -1 #Establish all the coordenates with mines
 
@@ -411,7 +443,7 @@ screen phone():
             ysize 100
             xpos 1380
             ypos 340
-            action SetVariable("phone_tab", "minesweeper"), Hide("phone")
+            action SetVariable("phone_tab", "minesweeper"), Show("phone")
     elif phone_tab == "contacts":
         imagebutton:
             idle "closebutton.png"
@@ -452,7 +484,7 @@ screen phone():
             hover "closebutton.png"
             xpos 300
             ypos 400
-            action [Hide("minesweeper_screen"),SetVariable(phone_tab,"home"), Show("phone")],
+            action SetVariable(phone_tab,"home"), Show("phone")
         imagebutton:
             idle "closebutton.png"
             hover "closebutton.png"
@@ -496,7 +528,24 @@ screen phone():
                                 text str(board[y][x]) style "txtMinesweeper"
                             else:
                                 text "" style "txtMinesweeper"
-                            
+#lo del telefono habrá que completarlo más adelante, pero por ahora lo dejaremos así                          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #Actualizar todo lo relacionado con el tiempo
 default hour = 9
@@ -516,14 +565,14 @@ screen digital_clock:
         padding (15, 10)
         background "#cddbc8"
         action NullAction()
-    if phone_avaliable:
-        textbutton "Telefono":
-            text_style "txtPhone"
-            xalign 0.85  
-            yalign 0.05
-            padding (15, 10)
-            background "#a9b4a5"
-            action Show("phone")
+    # if phone_avaliable:
+    #     textbutton "Telefono":
+    #         text_style "txtPhone"
+    #         xalign 0.85  
+    #         yalign 0.05
+    #         padding (15, 10)
+    #         background "#a9b4a5"
+    #         action Show("phone")
 
 
 
@@ -546,13 +595,19 @@ label dlg_wordsearch:
     "Es la antigua revista de Sopa de Letras de tu abuelo. Parece estar solo en Español"
     if hour == 9:
         "Despues de desayunar podrías hacer una"
+        hide mainroom
         return
     elif hour == 13:
         "Es hora de comer, mejor dejar la sopa de letras para otro momento"
+        hide mainroom
         return
     elif hour == 20:
         "Ya es hora de cenar, dejemos los pasatiempos para otro momento"
-    elif  hour < 21:
+        hide mainroom
+    elif soup_of_the_day:
+        "Ya has completado la sopa de letras diaria, mañana podrás hacer otra"
+        hide mainroom
+    elif  hour < 21 and soup_of_the_day == False:
         "Quieres resolver una sopa de letras?"
         menu:
             "Sí":
@@ -560,6 +615,7 @@ label dlg_wordsearch:
                 return
             "No":
                 "Mejor para más tarde"
+                hide mainroom
                 return
     return
     hide mainroom
@@ -584,7 +640,7 @@ label dlg_eat:
         show eat
         play sound "audio/comer.mp3"
         pause 0.5
-        "{cps=16}Espero que este bueno el desayuno, mientras tanto, por que no vemos las noticias?{/cps}"
+        "{cps=16}Buscando entre los cojines encuentras el mando de la televisión y la enciendes{/cps}"
         play sound "audio/button.mp3"
         stop sound
         call news
@@ -605,6 +661,71 @@ label dlg_eat:
     return
 
 
+default pelicula = False
+label dlg_sofa:
+    show livingroom
+    "{cps=15}El antiguo sofá de tu abuelo...{/cps}"
+    if pelicula:
+        "Que película quieres ver?"
+    else:
+        "{cps=15}Podríamos ver una peli{/cps}"
+        "Otro día"
+    #más adelante incorporar la opción de ver series o peliculas
+    if hour == 13:
+        "Quieres comer aquí?"
+    elif hour == 20:
+        "Quieres cenar aquí?"
+    hide livingroom
+    return
+label dlg_window:
+    show bg_ventana with dissolve
+    if hour == 9:
+        "Será mejor desayunar primero"
+        hide bg_ventana
+        return
+    elif hour == 13:
+        "Ya es la hora de comer, mejor pensar en otro momento"
+    elif hour == 20:
+        "Es hora de cenar... ve a la cocina y pilla algo"
+    else:
+        #Aquí dentro compruebas que día es, según el día que sea, se mostrará un menú u otro
+        pause
+        "{cps=15}Sientes que podrías perderte en tus pensamientos por un momento{/cps}"
+        "{cps=15}Descansar"
+        "{cps=15}Cavilar en las ocurrencias del hoy y el mañana{/cps}"
+        #Para controlar que ocurrencias pensar basta con controlarlo en if day == x then el menu que corresponda
+        menu:
+            "{cps=15}Deseas seguir mirando por la ventana?{/cps}"
+            "Sí":
+                "{cps=15}Ahora que estas sol[articulo], puede ser la oportunidad de pensar con más tranquilidad{/cps}"
+                "{cps=15}Alejad[articulo] de los gritos, las broncas y discusiones sin sentido que suelen tener tus padres{/cps}"
+                "{cps=3}. . .{/cps}"
+                "{cps=15}Sinceramente, resulta preocupante{/cps}"
+                "{cps=15}Has estado intentando contactar con tus padres días atrás, pero estos ni cogen las llamadas ni las devuelven{/cps}"
+                "{cps=12}Incluso te llegan a colgar antes de contestarte{/cps}"
+                pause 2
+                "{cps=18}Cambiando de tema{/cps}"
+                "{cps=14}Teniendo todo el tiempo libre del mundo podrías retomar antiguos hábitos{/cps}"
+                "{cps=14}Como leer, escribir, ver alguna serie, jugar a alguno de los jueguitos antiguos que tenia tu abuelo...{/cps}"
+                "{cps=18}O buscar trabajo{/cps}"
+                "{cps=15}Seria una buena manera de pasar el tiempo{/cps}"
+                "{cps=15}Pero bueno, será mejor proseguir con el día.{/cps}"
+                hide bg_ventana
+                return
+                
+            "No":
+                "{cps=3}. . .{/cps}"
+                "{cps=15}Mejor en otro momento{/cps}"
+                hide bg_ventana
+                return
+  
+
+
+
+
+
+
+
 label news:
     show eat
     #all the news will be condicionate by the day
@@ -615,8 +736,9 @@ label news:
     plNews "{cps=16}Los contagiados presentan síntomas similares a una gripe o resfriado común, con la ligera diferencia de provocar insomnio en un pequeño número de pacientes.{/cps}"
     plNews "{cps=16}Se han reportado 21 enfermos hasta el momento, y ningún caso grabe ni fallecimiento.{/cps}"
     plNews "{cps=16}Y esas han sido las noticias de hoy, gracias por su atención y que tengan un buen día.{/cps}"
-    plNews "{cps=16}Y ahora, un mensaje de nuestros patrocinadores{/cps}"
+    plNews "{cps=16}Volvemos en 1 minuto{/cps}"
     stop music fadeout 0.5
+    pause 1.0
     play music "audio/addmusic.mp3" volume 0.17 
     plAdd "{cps=20}¿Te sientes solo? ¿Estas buscando compañía y necesitas dinero?{/cps}"
     plAdd "{cps=20}¡Pues ahora puedes alquilar tu habitación semanalmente con la mejor compañía del mercado!{/cps}"
@@ -642,6 +764,7 @@ label news:
     play music "audio/ambientedia.mp3" loop fadein 0.5
     $ room = "livingroom"
     $ hour += 1
+    $ doorEvent = 1
     hide eat
     return
 
@@ -657,37 +780,353 @@ label lookoutside():
         return
     elif doorEvent == 1:
         menu:
-            "Quieres salir a hacer la compra?":
-                "Sí":
-                    jump hacer_compra
-                "Aún no...":
+            "Quieres salir a hacer la compra?"
+            "Sí":
+                pause 1.0
+                "{cps=15} Antes de salir...{/cps}"
+                "{cps=15} Cuanto dinero te queda...{/cps}"
+                show screen compra
+                "{cps=15}Tienes [dinero]$ en tu bolsillo{/cps}"
+                "{cps=16}Te da de sobra para hacer la compra{/cps}"
+                jump hacer_compra
+            "Aún no...":
+                "Esta bien, comprueba que no te dejas nada"
+                jump main_loop
 
-                    jump main_loop
 
+
+
+
+default lista_compra = ["Carne","Verduras","Pasta", "Comida Instantánea", "Capricho"]
+default dinero_gastado = 0
+screen compra:
+    zorder 200
+    textbutton "Dinero: [dinero]$":
+        text_style "txtClock"
+        xalign 0.85  
+        yalign 0.05
+        padding (15, 10)
+        background "#e6f4e1"
+        action NullAction()
 label hacer_compra:
-    show black with dissolve 1
+    show black
     play sound "audio/door_slam.mp3"
     stop music
     pause 4
-    hide black with fade 1
-    #show bg supermarket dissolve
-    "Acabas llegando al supermercado más cercano de tu casa, y al que has estado yendo básicamente por todo."
+    show bg_superkmarket with dissolve
+    "{cps=15}Acabas llegando al supermercado más cercano de tu casa, y al que has estado yendo básicamente para cualquier tontería.{/cps}"
     "{cps=15} Así que hoy para comprar hay...{/cps}"
-    "Algo de carne"
-    "Algo de verduras"
-    "Alguna sopa de estas que se hacen en 5min"
-    "Macarrones"
-    "Quizás algun capricho"
-    "Lo suficiente para sobrevivir"
-    # hide bg supermarket with fade 1
-    # show bg butcher with dissolve 2
+    "{cps=15}Algo de carne{/cps}"
+    "{cps=15}Verduras{/cps}"
+    "{cps=15}Alguna sopa de estas que se hacen en 5min{/cps}"
+    "{cps=15}Pasta{/cps}"
+    "{cps=15}Y quizás algun capricho{/cps}"
+    "{cps=15}Lo suficiente para sobrevivir{/cps}"
+    hide bg_superkmarket with fade
+    play music "audio/supermarket.mp3" loop volume 0.5 
+    show bg_pasta with dissolve 
+    "{cps=15}Parece estar más abarrotado de lo que creías{/cps}"
+    "{cps=15}La gente parece nerviosa{/cps}"
+    "{cps=15}Agetreada{/cps}"
+    #p "Pero no le di importancia..."
+    p "{cps=15}Pero... que comprar primero{/cps}"
+    stop music
+    hide bg_pasta with fade
+
+
+
+
+label menu_compra:
+    show black
+    play music "audio/supermarket.mp3" loop volume 0.5 fadein 0.5
+    show bg_pasta with dissolve
+    if not lista_compra:
+        "Ya has comprado todo, ya podemos ir a pagar..."
+        hide screen compra
+        hide bg_pasta with dissolve
+        stop music fadeout 0.0
+        $ hour += 1
+        $ food = 3
+        jump pagar_compra
+        
+    else:
+        
+        menu:
+            "..."
+            "Carne" if "Carne" in lista_compra:
+                hide bg_pasta 
+                $ lista_compra.remove("Carne")
+                call carniceria 
+                jump menu_compra
+            "Verduras" if "Verduras" in lista_compra:
+                $ lista_compra.remove("Verduras")
+                hide bg_pasta 
+                call verduras
+                jump menu_compra
+            "Pasta" if "Pasta" in lista_compra:
+                $ lista_compra.remove("Pasta")
+                hide bg_pasta 
+                call macarrones
+                jump menu_compra
+            "Comida Instantánea" if "Comida Instantánea" in lista_compra:
+                $ lista_compra.remove("Comida Instantánea")
+                hide bg_pasta 
+                call comida_instantanea
+                jump menu_compra
+            "Capricho" if "Capricho" in lista_compra:
+                $ lista_compra.remove("Capricho")
+                hide bg_pasta 
+                call capricho
+                jump menu_compra
+    hide bg_pasta 
+    return
+                                                  
+label carniceria:
+    stop music fadeout 1.0
+    play music "audio/butcher.mp3" loop volume 0.2
+    show bg_carniceria 
+    "{cps=16}Coges un tiquet y te sientas hasta que te toque tu turno{/cps}"
+    show ticket at Position(xalign=0.5, yalign=0.5) onlayer overlay
+    pause 1.0
+    hide ticket with dissolve
+    "{cps=14}Al menos tienen buena música de ambiente...{/cps}"
+    $ renpy.notify("Avanza cuando quieras")
+    pause
+    c "¡{cps=27}{b}{size=50}557?!{/size}{/b}{/cps}"
+    "{cps=14}wow,{w=0.1} eso fue rápido{/cps}"
+    stop music fadeout 1.0
+    menu:
+        c "{cps=16}Que quieres?{/cps}"
+        "Solomillo de cerdo: 13$/kg":
+            c "{cps=16}Aquí tienes{/cps}"
+            $ dinero -= 13
+            $ dinero_gastado += 13
+            hide bg_carniceria
+            show black with dissolve
+            play sound "audio/meat.mp3"
+            pause 1
+            show bg_carniceria 
+            c "{cps=16}Todo listo{/cps}"
+            hide bg_carniceria with dissolve
+            
+            return
+        "Ternera: 16$/kg":
+            c "{cps=16}Aquí tienes{/cps}"
+            $ dinero -= 16
+            $ dinero_gastado += 16
+            hide bg_carniceria
+            show black with dissolve
+            play sound "audio/meat.mp3"
+            pause 1
+            show bg_carniceria
+            c "{cps=16}Todo listo{/cps}"
+            hide bg_carniceria with dissolve
+            
+            return
+        "Alitas de pollo: 6.50$/kg":
+            c "{cps=16}Aquí tienes{/cps}"
+            $ dinero -= 6.5
+            $ dinero_gastado += 6.5
+            hide bg_carniceria 
+            show black with dissolve
+            play sound "audio/meat.mp3"
+            pause 1
+            show bg_carniceria
+            c "{cps=16}Todo listo{/cps}"
+            hide bg_carniceria with dissolve
+            
+            return
+        "Filetes de pavo: 11$/kg":
+            c "{cps=16}Aquí tienes{/cps}"
+            $ dinero -= 11
+            $ dinero_gastado += 11
+            hide bg_carniceria
+            show black with dissolve
+            play sound "audio/meat.mp3"
+            pause 1
+            show bg_carniceria 
+            c "{cps=16}Todo listo{/cps}"
+            hide bg_carniceria with dissolve
+            
+            return
+    stop music fadeout 0.5
+    return
+
+
+
+label verduras:
+    show bg_verduras with dissolve
+    "{cps=16}Esta bien comer verduras.{/cps}"
+    "{cps=16}Y cocinar con ellas le da mucho sabor a los platos{/cps}"
+    menu:
+        "{cps=16}Que vas a comprar?{/cps}"
+        "Tomate: 2$/kg":
+            "{cps=16}Sobrará con pillar un kilo{/cps}"
+            $ dinero -= 2
+            $ dinero_gastado += 2
+            hide bg_verduras with fade
+            return
+        "Lechuga: 1.50$/kg":
+            "{cps=16}Sobrará con pillar una{/cps}"
+            $ dinero -= 1.5
+            $ dinero_gastado += 1.5
+            hide bg_verduras with fade
+            return
+        "Zanahoria: 1$/kg":
+            "{cps=16}Sobrará con pillar un kilo{/cps}"
+            $ dinero -= 1
+            $ dinero_gastado += 1
+            hide bg_verduras with fade
+            return
+        "Cebolla: 1.50$/kg":
+            "{cps=16}Sobrará con pillar un kilo{/cps}"
+            $ dinero -= 1.5
+            $ dinero_gastado += 1.5
+            hide bg_verduras with fade
+            return
+        "Patata: 3$/kg":
+            "{cps=16}Sobrará con pillar un kilo{/cps}"
+            $ dinero -= 3
+            $ dinero_gastado += 3
+            hide bg_verduras with fade
+            return
+        
+label macarrones:
+    show bg_pasta 
+    menu:
+        "{cps=16}Haber que opciones hay por aquí{/cps}"
+        "Macarrones: 0.80$ el paquete":
+            "{cps=16}Con un paquete va bien{/cps}"
+            $ dinero -= 0.8
+            $ dinero_gastado += 0.8
+            return
+        "Espaguetis: 0.95$ el paquete":
+            "{cps=16}Con un paquete va bien{/cps}"
+            $ dinero -= 0.95
+            $ dinero_gastado += 0.95
+            return
+        "Ñoquis: 1.20$ el paquete":
+            "{cps=16}Con un paquete va bien{/cps}"  
+            $ dinero -= 1.2
+            $ dinero_gastado += 1.2
+            return
+        "Raviolis: 1.50$ el paquete":
+            "{cps=16}Con un paquete va bien{/cps}"
+            $ dinero -= 1.5
+            $ dinero_gastado += 1.5
+            return
+
+
+label comida_instantanea:
+    show bg_sopa_instantanea with dissolve
+    "{cps=16}No creo que tenga mucha complicacion escoger que sopa pillar, todas valen lo mismo{/cps}"
+    "{cps=16}Y todas son de la misma marca, así que no hay mucho donde elegir{/cps}"
+    menu:
+        "Quieres pillar una de cada?"
+        "Sí":
+            "{cps=16}Perfecto, así no te faltará de nada{/cps}"
+            $ dinero -= 3
+            $ dinero_gastado += 3
+            hide bg_sopa_instantanea with fade
+            return
+        "No":
+            "{cps=16}Vale, entonces que sopa quieres?{/cps}"
+            menu:
+                "Sopa de Pollo: 0.6$":
+                    "{cps=16}Suficiente{/cps}"
+                    $ dinero -= 0.6
+                    $ dinero_gastado += 0.6
+                    hide bg_sopa_instantanea with fade
+                    return
+                "Sopa de Verduras: 0.6$":
+                    "{cps=16}Suficiente{/cps}"
+                    $ dinero -= 0.6
+                    $ dinero_gastado += 0.6
+                    hide bg_sopa_instantanea with fade
+                    return
+                "Sopa de Marisco: 0.6$":
+                    "{cps=16}Suficiente{/cps}"
+                    $ dinero -= 0.6
+                    $ dinero_gastado += 0.6
+                    hide bg_sopa_instantanea with fade
+                    return
+                "Sopa de Fideos: 0.6$":
+                    "{cps=16}Suficiente{/cps}"
+                    $ dinero -= 0.6
+                    $ dinero_gastado += 0.6
+                    hide bg_sopa_instantanea with fade
+                    return
+                "Sopa de Cebolla: 0.6$":
+                    "{cps=16}Suficiente{/cps}"
+                    $ dinero -= 0.6
+                    $ dinero_gastado += 0.6
+                    hide bg_sopa_instantanea with fade
+                    return               
+
+label capricho:
+    show bg_capricho with dissolve
+    "{cps=16}Bueno, un capricho de vez en cuando no hace daño{/cps}"
+    "{cps=16}El dilema es...{/cps}"
+    menu:
+        "{cps=16}Que pillar?{/cps}"
+        "Chocolate: 1.50$":
+            "{cps=16}Buen postre o acompañamiento{/cps}"
+            $ dinero -= 1.5
+            $ dinero_gastado += 1.5
+            hide bg_capricho with fade
+            return
+        "Gominolas: 1.20$":
+            "{cps=16}Es una pena que despues no duren nada{/cps}"
+            $ dinero -= 1.2
+            $ dinero_gastado += 1.2
+            hide bg_capricho with fade
+            return
+        "Galletas: 1.00$":
+            "{cps=16}Perfecto para acompañar el desayuno{/cps}"
+            $ dinero -= 1
+            $ dinero_gastado += 1
+            hide bg_capricho with fade
+            return
+    return
+transform bump:
+    linear 0.04 xoffset -20 yoffset 0
+    linear 0.04 xoffset 20 yoffset 0
+    linear 0.04 xoffset -10 yoffset 0
+    linear 0.04 xoffset 0 yoffset 0
+label pagar_compra:
+    show bg_pagar with dissolve
+    stop music fadeout 1.0
+    play music "audio/butcher.mp3" loop volume 0.1 fadein 1.0
+    "{cps=16}Las cajas estan llenas de gente comprando cantidades inmensas de comida, pero logras meterte en la fila donde menos gente había{/cps}"
+    "{cps=16}Aún así, parece que va a tardar un rato{/cps}"
+    pause 1.0
+    hide bg_pagar 
+    show bg_pagar at bump
+    stop music fadeout 0.5
+    play sound "audio/coughing.mp3"
+    "{cps=12}Vaya...{/cps}{cps=15} parece que alguien esta costipado{/cps}"
+    "{cps=15}Y no tiene otro lugar para estornudar que justamente en tu espalda{/cps}"
+    "{cps=15}Pero bueno, ya va tocandote, así que coloca toda la compra en la cinta{/cps}"
+    pause 0.5
+    play sound "audio/receipt.mp3"
+    pause 2.0
+    "{cps=16}Con todo ya pagado, es momento de irse a casa{/cps}"
+    show black with dissolve
+    stop music fadeout 1.0
+    pause 4
+    $ renpy.notify("Explora la casa y haz cosas hasta la hora de comer(13:00 - 14:00)")
+    play music "audio/ambientedia.mp3" loop volume 0.2 fadein 2.0
+    hide black with dissolve
+    $ room = "hall2"
+    jump main_loop
+    
 
 
     
 
 
 
-default door_actions = ["Mirar", "Salir"]
+default door_actions = ["Mirar", "Salir", "Contestar"]
 default phone_avaliable = True
 screen Mr_Game_and_Watch():
     if room == "mainroom":
@@ -747,15 +1186,18 @@ screen Mr_Game_and_Watch():
     elif room == "livingroom":
         add "livingroom.png"
         imagebutton:
-                idle "interactive.png"
-                hover "interactive.png"
-                xpos 400
-                ypos 710
+            idle "interactive.png"
+            hover "interactive.png"
+            xpos 300
+            ypos 580
+            action Call("dlg_window")
         imagebutton:
             idle "interactive.png"
             hover "interactive.png"
             xpos 850
             ypos 500
+            action Call("dlg_sofa")
+            
         textbutton "Atrás":
             text_style "txtRoom"
             xpos 850
@@ -763,19 +1205,45 @@ screen Mr_Game_and_Watch():
             action SetVariable("room", "pasillo")
     elif room == "hall2":
         add "hall2.png"
+        textbutton "Puerta":
+            text_style "txtRoom"
+            xpos 850
+            ypos 1000
+            action SetVariable("room", "door")
+        textbutton "Cocina":
+            text_style "txtRoom"
+            xpos 1600
+            ypos 250
+            action SetVariable("room", "kitchen")
+        textbutton "Salón":
+            text_style "txtRoom"
+            xpos 900
+            ypos 100
+            action SetVariable("room", "livingroom")
+        textbutton "Habitación de Invitados":
+            text_style "txtRoom"
+            xpos 1000
+            ypos 1000
+            action SetVariable("room", "guestroom")
     elif room == "door":
         add "door.png"
         textbutton "Atrás":
             text_style "txtRoom"
             xpos 1000
             ypos 1000
-            action SetVariable("room", "pasillo")
-        textbutton "[door_action[doorEvent]]":
+            action SetVariable("room", "hall2")
+        textbutton "[door_actions[doorEvent]]":
             text_style "txtRoom"
             xpos 1000
             ypos 250
             action Call("lookoutside")
-
+    elif room == "guestroom":
+        add "guestroom.jpeg"
+        textbutton "Atrás":
+            text_style "txtRoom"
+            xpos 850
+            ypos 1000
+            action SetVariable("room", "hall2")
 
 #renpy.say hace de dialogo abriendo una nueva interacción, que pasa, screen se cuenta como otra interacción y se interceptan
  
@@ -800,6 +1268,7 @@ screen Mr_Game_and_Watch():
 
 
 label start:
+    scene black
     "Buenos días, tardes o noche"
     "Antes de introducirte en el juego y contarte tu historia me gustaria avisarte de unas pequeñas cosillas"
     "Este juego presenta contenido maduro, explícito e incluso gráfico, por lo cual debe de jugarse bajo estas condiciones"
@@ -807,10 +1276,12 @@ label start:
     "Ningún contenido explícito y gráfico es obligatorio, sino que opcional"
     menu:
         "Desearias recivir un aviso de que opciones pueden conllevar a este tipo de contenido?"
-            "Sí":
-                "Perfecto"
-            "No":
-                "Sin problema"
+        "Sí":
+            narrator "Perfecto"
+            pass
+        "No":
+            narrator "Sin problema"
+            pass
     "En cualquier caso, el juego esta lleno de muchas otras cosas de la que podrás disfrutar"
     pause 2
     #antes de el nombre y pronombre los avisos del contenido de este juego

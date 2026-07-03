@@ -1279,7 +1279,7 @@ screen notify(message):
     frame at notify_appear:
         text "[message!tq]"
 
-    timer 3.25 action Hide('notify')
+    timer 4 action Hide('notify')
 
 
 transform notify_appear:
@@ -1301,6 +1301,7 @@ style notify_frame:
 
 style notify_text:
     properties gui.text_properties("notify")
+    color "#241010"
 
 
 ## Pantalla NVL ################################################################
