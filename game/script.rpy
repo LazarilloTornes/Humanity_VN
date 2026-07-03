@@ -5,6 +5,7 @@ define plNews = Character(("Presentador de noticias"), color="#9ba5d8")
 define plAdd = Character (("Anunciador Entusiastico"), color="#f1f1d3")
 define plAdd2 = Character (("Anunciador Tranquilo"), color="#d4f1d3")
 define c = Character(("Carnicera"), color="#d99d9d")
+define t = Character(("Trabajadora Telefónica"), color="#d3ebea")
 #variable que determina que hora va a ser
 #image bg_bathroom = "bathroom.png"
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
@@ -24,6 +25,7 @@ image ticket = "ticket.png"
 
 
 
+default player_name = "Bolonga"
 
 
 
@@ -63,12 +65,12 @@ style text_notify:
 style txtActions:
     color "#3a0c0c"
 style txtContacts:
-    size 20
+    size 25
     color "#273529"
     line_spacing 2
     font "Pixel Digivolve.otf"
 style txtMinesweeper:
-    size 35
+    size 22
     color "#273529"
     padding (12, 12)
     background "#cddbc8"
@@ -242,11 +244,13 @@ label winSopaLetras:
 
 
 #Minigames upcoming
+
+
+
+
+
+
 #Minesweeper game
-
-
-
-
 #celd_status = 0 nothing
 #celd_status = -1 mine
 
@@ -413,49 +417,75 @@ default win = True
 default phone_tab = "home"
 default contacts = ["AAMamá","AAPapá"]
 default phone_open = False
+default open_contacts = False
+default selected_contact = None
 screen phone():
-    modal True
+    if open_contacts == False:
+        modal True
+    else:
+        modal False
     $ phone_open = True
     add "phone.png":
-        xalign 0.85
-        yalign 0.5
+        xalign 0.95
+        yalign 0.45
+        xsize 500
+        ysize 1070
         
 
     if phone_tab == "home":
         imagebutton:
             idle "closebutton.png"
             hover "closebutton.png"
-            xpos 300
-            ypos 400
+            xpos 1700
+            ypos 370
             action SetVariable("phone_open", False), Hide("phone"), Jump("main_loop")
         imagebutton:
             idle "contactsbutton.png"
             hover "contactsbutton.png"
             xsize 100
             ysize 100
-            xpos 1280
-            ypos 340
-            action SetVariable("phone_tab", "contacts")
+            xpos 1470
+            ypos 250
+            action SetVariable("phone_tab", "contacts"),SetVariable("open_contacts", True), Show("phone")
         imagebutton:
             idle "minesweeperbutton.png"
             hover "minesweeperbutton.png"
             xsize 100
             ysize 100
-            xpos 1380
-            ypos 340
+            xpos 1530
+            ypos 250
             action SetVariable("phone_tab", "minesweeper"), Show("phone")
-    elif phone_tab == "contacts":
         imagebutton:
-            idle "closebutton.png"
-            hover "closebutton.png"
-            xpos 300
-            ypos 400
+            idle "bank_button.png"
+            hover "bank_button.png"
+            xsize 100
+            ysize 100
+            xpos 1590
+            ypos 250
+            action SetVariable("phone_tab", "bank"), Show("phone")
+        if alquilar:
+            $ phone_open = True
+            imagebutton:
+                idle "rent_button.png"
+                hover "rent_button.png"
+                xsize 100
+                ysize 100
+                xpos 1470
+                ypos 310
+                action SetVariable("phone_tab", "rent"), Show("phone")
+    elif phone_tab == "contacts":
+        
+        imagebutton:
+            idle "back_button.png"
+            hover "back_button.png"
+            xpos 1470
+            ypos 370
             action SetVariable("phone_tab", "home"), Show("phone")
         viewport:
             xsize 210
-            ysize 125
-            xpos 870
-            ypos 350
+            ysize 170
+            xpos 1490
+            ypos 250
             scrollbars "vertical"
             mousewheel True
             draggable True
@@ -465,70 +495,244 @@ screen phone():
                 for i in contacts:
                     textbutton "[i]":
                         text_style "txtContacts"
+                        action If(
+                            i == "661",
+                            [Jump("dlg_661"), Hide("phone"), SetVariable("phone_open", False)],
+                            If(
+                                i == "627",
+                                Jump("dlg_627"),
+                                If(
+                                    i == "AAMamá",
+                                    Jump("dlg_mama"),
+                                    If(
+                                        i == "AAPapá",
+                                        Jump("dlg_papa"),
+                                        NullAction()
+                                    )
+                                )
+                            )
+                        )
     elif phone_tab == "minesweeper":
-        add "phone.png":
-            xalign 0.5
-            yalign 0.17
-            xsize 1000
-            ysize 2600
-        textbutton "[tool_mode]":
-            xpos 50
-            ypos 50
+        
+        frame:
+            xpos 1405
+            ypos 95
+            xsize 410
+            ysize 860
+            xpadding 20
+            ypadding 20
+            background "#6e766bff"
+
+            grid WIDTH HEIGHT:
+                
+                spacing 2
+                xalign 0.5
+                yalign 0.5
+                for y in range(HEIGHT):
+                    for x in range(WIDTH):
+                        if state[y][x] == HIDDEN:
+                            frame:
+                                xsize 45
+                                ysize 45
+                                background "#585d57"
+
+                                textbutton "":
+                                    action If(tool_mode == "BANDERIN",
+                                    Function(toggle_flag, x, y),
+                                    Function(reveal_cell, x, y))
+                                    xfill True
+                                    yfill True
+                        elif state[y][x] == FLAGGED:
+                            frame:
+                                xsize 45
+                                ysize 45
+                                background "#585d57"
+                                text "🚩"
+                        else:
+                            frame:
+                                xsize 45
+                                ysize 45
+                                background "#ccc"   # light color
+
+                                if board[y][x] == -1:
+                                    text "💣" style "txtMinesweeper"
+                                    $ win = False
+                                elif board[y][x] > 0:
+                                    text str(board[y][x]) style "txtMinesweeper"
+                                else:
+                                    text "" style "txtMinesweeper"
+        textbutton "[tool_mode]":    
+            xpos 1500
+            ypos 150
             padding (15, 10)
             background "#bbc5b9"
             action If(tool_mode == "REVELAR",
                     SetVariable("tool_mode", "BANDERIN"),
                     SetVariable("tool_mode", "REVELAR"))
         imagebutton:
-            idle "closebutton.png"
-            hover "closebutton.png"
-            xpos 300
-            ypos 400
-            action SetVariable(phone_tab,"home"), Show("phone")
+            idle "back_button.png"
+            hover "back_button.png"
+            xpos 1530
+            ypos 900
+            action SetVariable("phone_tab","home"), Show("phone")
         imagebutton:
-            idle "closebutton.png"
-            hover "closebutton.png"
-            xpos 500
-            ypos 400
+            idle "reset_button.png"
+            hover "reset_button.png"
+            xpos 1460
+            ypos 900
             action Function(reset_game)
-        grid WIDTH HEIGHT:
-            spacing 2
-            xalign 0.5
-            yalign 0.5
-            for y in range(HEIGHT):
-                for x in range(WIDTH):
-                    if state[y][x] == HIDDEN:
-                        frame:
-                            xsize 60
-                            ysize 60
-                            background "#585d57"
+    elif phone_tab == "bank":
+        imagebutton:
+            idle "back_button.png"
+            hover "back_button.png"
+            xpos 1470
+            ypos 370
+            action SetVariable("phone_tab", "home"), Show("phone")
+        textbutton "Saldo: [dinero]$":
+            text_style "txtContacts"
+            xpos 1450  
+            ypos 250
+            padding (15, 10)
+            #background "#e6f4e1"
+            action NullAction()
+        textbutton "Dinero gastado: [dinero_gastado]$":
+            text_style "txtContacts"
+            xpos 1450  
+            ypos 280
+            padding (15, 10)
+            #background "#e6f4e1"
+            action NullAction()
+        textbutton "Dinero ganado: 0$": #cambiar esto más adelante, pero por ahora lo dejaremos así
+            text_style "txtContacts"
+            xpos 1450  
+            ypos 310
+            padding (15, 10)
+            #background "#e6f4e1"
+            action NullAction()
+    elif phone_tab == "rent_room":
+        if day == 0:
+            textbutton "No hay solicitudes :(":
+                xpos 1450  
+                ypos 310
+                padding (15, 10)
+                text_style "txtContacts"
+        else:
+            textbutton "Wilson":
+                xpos 1450  
+                ypos 310
+                padding (15, 10)
+                text_style "txtContacts"
+        imagebutton:
+            idle "back_button.png"
+            hover "back_button.png"
+            xpos 1530
+            ypos 900
+            action SetVariable("phone_tab","home"), Show("phone")
+#Aquí todas las llamadas
+default qt_661 = ["Preguntar para alquilar la habitación","Preguntar detalles sobre la compañía","Mejor nada..."]
+default alquilar = False
+label dlg_mama:  
+    show black
+    stop music fadeout 1.0
+    play sound "audio/call.mp3" fadein 0.5
+    pause 
+    stop sound fadeout 0.5
+    play music "audio/ambientedia.mp3" loop volume 0.2 fadein 0.5
+    "{cps=15}No parece que vaya a responder...{/cps}"
+    hide black
+    jump main_loop
+label dlg_papa: 
+    show black
+    stop music fadeout 1.0
+    play sound "audio/call.mp3" fadein 0.5
+    pause 10
+    stop sound fadeout 0.5
+    play music "audio/ambientedia.mp3" loop volume 0.2 fadein 0.5
+    "{cps=15}No parece que vaya a responder...{/cps}"
+    hide black
+    jump main_loop
+label dlg_661: 
+    stop music fadeout 1.0
+    play sound "audio/call.mp3" fadein 0.5
+    pause 2.5
+    stop sound fadeout 0.5
+    play music "audio/ambientedia.mp3" loop volume 0.2 fadein 0.5
+    if alquilar == False:
+        t "{cps=15}Hola, buenos días, podría decirme su nombre para dirigirme a usted?{/cps}"
+        p "{cps=15}[player_name]{/cps}"
+        t "{cps=15}Y cuénteme [player_name], en que le puedo ayudar?{/cps}"
+    else:
+        t "{cps=15}Hola de nuevo [player_name], dime, en que te puedo ayudar?{/cps}"
+    menu:
+        "Preguntar para alquilar la habitación" if "Preguntar para alquilar la habitación" in qt_661:
+            $ qt_661.remove("Preguntar para alquilar la habitación")
+            p "{cps=15}Pues, me gustaría alquilar una habitación que tengo vacia en mi apartamento{/cps}"
+            t "{cps=18}Perfecto, pues dígame su dirección{/cps}"
+            p "XXXXXX, XXXX XXXXX, XXXXX 1, XXXX"
+            pause 2.0
+            t "{cps=18}Vale, ya te tengo{/cps}"
+            t "{cps=18}Me podrías dar algunos detalles de la casa y de la habitación?{/cps}"
+            menu:
+                "Decir que es normal sin nada especial": 
+                    p "{cps=14}Es una casa normal con 2 habitaciones, un salón, una cocina... lo que todas las casas tienen.{/cps}"
+                    pause 1
+                    t "{cps=18}Bueno, lo tendremos en cuenta{/cps}"
+                "Decir que es lujosa y mentir":
+                    p "{cps=14}Será la mejor casa del mercado, con incontables lujos, la mejor televisión, piso completamente nuevo y decorado.{/cps}"
+                    t "{cps=18}En serio?{/cps}"
+                    t "{cps=14}...{/cps}"
+                    t "{cps=18}Lo cierto es que usted vive en un barrio bastante antiguo...{/cps}"
+                    t "{cps=18}Pero bueno, lo que usted diga{/cps}"
+                "Decir que es decente pero acogedora":
+                    p "{cps=14}Es una casa modesta y cómoda, ordenada, con todo lo necesario para vivir pero sin ningún lujo caro.{/cps}"
+                    t "{cps=18}Perfecto, es justo lo que buscabamos{/cps}"
+            pause 2
+            t "{cps=18}Pues mire [player_name], viendo el barrio en el que vives y con lo que me has dicho de la habitación, podríamos darle una estimación de 71$ la semana{/cps}"
+            menu:
+                "Me parece poco dinero":
+                    t "{cps=18}Le entiendo, pero hoy en día el mercado trabaja con esos precios, si lo subimos más seguramente tardaría una eternidad en venderse{/cps}"
+                "Perfecto":
+                    t "{cps=18}Me alegra escuchar eso{/cps}"
+                "Me parece demasiado dinero":
+                    t "{cps=14}Podríamos bajarlo más si lo desea...{/cps}"
+                    menu:
+                        "Sí por favor":
+                            t "{cps=14}Lo mázimo que lo puedo bajar es a 70${/cps}"
+                            t "{cps=18}Pero bueno{/cps}"
+                        "Mejor no":
+                            t "{cps=18}Entendible{/cps}"
+            t "{cps=18}Pues le cuento, nosotros nos encargaremos de buscar los inquilinos, le mandaremos atraves de una aplicación todos los interesados, tu podrás organizar las entrevistas como quieras{/cps}"
+            t "{cps=18}En cuanto al pago del alquiler nosotros nos encargaremos de ingresarte el dinero que nos den los inquilinos{/cps}"
+            t "{cps=18}Y si necesita cualquier otra cosa no dude en volver a llamar{/cps}"
+            t "{cps=18}Nosotros le ayudaremos con lo que sea{/cps}"
+            play sound "audio/hang_up.mp3"
+            pause 0.5
+            "{cps=14}Pues te ha colgado...{/cps}"
+            $ alquilar = True
+            jump main_loop
+        "Preguntar detalles sobre la compañía":
+            t "{cps=18}Muy bien, y que le gustaría saber?{/cps}"
+            menu:
+                "Como funciona el alquiler de la habitación":
+                    t "{cps=18}Te cuento{/cps}"
+                    t "{cps=18}En el momento que aceptas a un inquilino este tiene que pagar por adelantado un porcentaje del alquiler{/cps}"
+                    t "{cps=18}Ese dinero se transferirá directamente a nosotros{/cps}"
+                    t "{cps=18}Para posteriormente depositarlo en tu cuenta bancaria{/cps}"
+                    t "{cps=18}Así evitamos tramites inoportunos y controlamos las cuentas globales de la empresa{/cps}"
+                "Como se buscan inquilinos":
+                    t "{cps=18}Pues verás [player_name]{/cps}"
+                    t "{cps=18}Nosotros subimos a nuestra web el piso, la dirección y el precio, colgamos carteles o incluso los ponemos de exposición en nuestro local{/cps}"
+                    t "{cps=18}Y así cualquier persona que esté interesada puede preguntar o mandar una solicitud{/cps}"
+                    return                
+                "Nada":
+                    return
+            jump main_loop
+        "Mejor nada...":
+            jump main_loop
+        
 
-                            textbutton "":
-                                action If(tool_mode == "BANDERIN",
-                                Function(toggle_flag, x, y),
-                                Function(reveal_cell, x, y))
-                                xfill True
-                                yfill True
-                    elif state[y][x] == FLAGGED:
-                        frame:
-                            xsize 60
-                            ysize 60
-                            background "#585d57"
-                            text "🚩"
-                    else:
-                        frame:
-                            xsize 60
-                            ysize 60
-                            background "#ccc"   # light color
-
-                            if board[y][x] == -1:
-                                text "💣" style "txtMinesweeper"
-                                $ win = False
-                            elif board[y][x] > 0:
-                                text str(board[y][x]) style "txtMinesweeper"
-                            else:
-                                text "" style "txtMinesweeper"
-#lo del telefono habrá que completarlo más adelante, pero por ahora lo dejaremos así                          
+label dlg_627: 
+#label dlg_:                         
 
 
 
@@ -565,14 +769,13 @@ screen digital_clock:
         padding (15, 10)
         background "#cddbc8"
         action NullAction()
-    # if phone_avaliable:
-    #     textbutton "Telefono":
-    #         text_style "txtPhone"
-    #         xalign 0.85  
-    #         yalign 0.05
-    #         padding (15, 10)
-    #         background "#a9b4a5"
-    #         action Show("phone")
+    textbutton "Telefono":
+        text_style "txtPhone"
+        xalign 0.85  
+        yalign 0.05
+        padding (15, 10)
+        background "#a9b4a5"
+        action SetVariable("phone_open", True), Show("phone")
 
 
 
@@ -709,6 +912,15 @@ label dlg_window:
                 "{cps=14}Como leer, escribir, ver alguna serie, jugar a alguno de los jueguitos antiguos que tenia tu abuelo...{/cps}"
                 "{cps=18}O buscar trabajo{/cps}"
                 "{cps=15}Seria una buena manera de pasar el tiempo{/cps}"
+                pause 2
+                "{cps=15}Hablando de trabajo{/cps}"
+                "{cps=15}Lo cierto es que no te queda mucho dinero, y la verdad es que necesitas al menos una fuente de ingresos{/cps}"
+                "{cps=15}Después de todo, la comida no es gratis{/cps}"
+                pause 1
+                "{cps=14}Puede ser un buen momento para alquilar la otra habitación que tienes en el piso{/cps}"
+                "{cps=14}Ni siquiera la usas para nada{/cps}"
+                "{cps=14}Solo está ahí{/cps}"
+                "{cps=14}Acumulando polvo{/cps}"
                 "{cps=15}Pero bueno, será mejor proseguir con el día.{/cps}"
                 hide bg_ventana
                 return
@@ -757,7 +969,7 @@ label news:
     $ renpy.notify("Nuevo número registrado: 627")
     $ contacts.append("627")
     play sound "audio/comer.mp3" loop
-    pause 5.0
+    pause 
     stop sound fadeout 0.5
     narrator "{cps=16}Bueno, suficientes noticias por hoy, creo que es hora de ir a comprar todo lo que te falta{/cps}"
     "De paso sales y aprovechas la mañana"
@@ -773,7 +985,7 @@ label news:
 
 default doorEvent = 0
 label lookoutside():
-    if doorEvent == 0:
+    if doorEvent == 0 or doorEvent == 2:
         show bg outside
         "No parece haber mucho movimiento ahí fuera"
         hide bg outside
@@ -788,6 +1000,7 @@ label lookoutside():
                 show screen compra
                 "{cps=15}Tienes [dinero]$ en tu bolsillo{/cps}"
                 "{cps=16}Te da de sobra para hacer la compra{/cps}"
+                $ doorEvent = 2
                 jump hacer_compra
             "Aún no...":
                 "Esta bien, comprueba que no te dejas nada"
@@ -848,7 +1061,6 @@ label menu_compra:
         $ hour += 1
         $ food = 3
         jump pagar_compra
-        
     else:
         
         menu:
@@ -890,7 +1102,7 @@ label carniceria:
     pause 1.0
     hide ticket with dissolve
     "{cps=14}Al menos tienen buena música de ambiente...{/cps}"
-    $ renpy.notify("Avanza cuando quieras")
+    $ renpy.notify("Pulsa espacio para avanzar")
     pause
     c "¡{cps=27}{b}{size=50}557?!{/size}{/b}{/cps}"
     "{cps=14}wow,{w=0.1} eso fue rápido{/cps}"
@@ -1111,12 +1323,14 @@ label pagar_compra:
     play sound "audio/receipt.mp3"
     pause 2.0
     "{cps=16}Con todo ya pagado, es momento de irse a casa{/cps}"
+    hide bg_pagar 
     show black with dissolve
     stop music fadeout 1.0
     pause 4
     $ renpy.notify("Explora la casa y haz cosas hasta la hora de comer(13:00 - 14:00)")
     play music "audio/ambientedia.mp3" loop volume 0.2 fadein 2.0
     hide black with dissolve
+    hide screen compra
     $ room = "hall2"
     jump main_loop
     
@@ -1266,7 +1480,6 @@ screen Mr_Game_and_Watch():
 
 
 
-
 label start:
     scene black
     "Buenos días, tardes o noche"
@@ -1323,7 +1536,6 @@ label start:
             narrator "{cps=16}No te preocupes, en algún momento te acostumbrarás.{/cps}" 
     pause 0.5
     play sound "audio/alarm-clock.mp3" fadein(0.5)
-    show screen digital_clock
     narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y sonar{/cps}"
     pause 1
     show bg weikiweiki 
@@ -1337,6 +1549,7 @@ label start:
     window hide
     pause 1.0
     $ renpy.notify("Acabas de coger el móvil")
+    show screen digital_clock
     call screen Mr_Game_and_Watch
     jump main_loop
 
