@@ -2,21 +2,20 @@ Things to finish
   - All backgrounds with their own interaction
   - Write and develop the "News"
   - Structure the history
-  - Food and Money system
-  - Phone and Sevices
   Phone
-  - The phone must contain information about: day, money, contact list with the services
-
-- Change the fucking renpy.notify
-Minigames to change the stage of the day(doesn't force the player to actually change the time)
-
+  - Maybe adding more minigames or whatever
+Adding hours to the timer.
   - Writing
   - Reading
-  - Trivia
   - News Paper
-  - Mirar por la ventana y pensar
   - Ducha
   - Nightmares
+  - Minidreams (tomodachi kinda shit)
+
+ Renpy interface
+- Change the color text of the input in renpy
+- Structure the house correctly, with al the rooms positions fixed
+- Maybe add a tutorial in the start of the game
 
 
 Characters(16)
