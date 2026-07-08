@@ -1,23 +1,25 @@
-Things to finish
-  - All backgrounds with their own interaction
-  - Write and develop the "News"
-  - Structure the history
-  Phone
-  - Maybe adding more minigames or whatever
-Adding hours to the timer.
+Things to add
+  Details:
+  - Some gif of hands in hylics style, just for the aesthetics
+  - Maybe adding a "Timer" or something that add hours automatically when x time passes without calling any function (don't know if that would work)
+  House interactions:
+  - Sleep (with dreams and nightmare flashgames)
+  - Watch TV (just a Timeskip, maybe some choices)
+  - Read a book (same with TV)
+  - Search in the closet (a d20 of random things to find, 1 at day)
+  - Growing and taking care of a plant (beans, lentils, chickpeas)
   - Writing
-  - Reading
-  - News Paper
-  - Ducha
-  - Nightmares
-  - Minidreams (tomodachi kinda shit)
-
- Renpy interface
-- Change the color text of the input in renpy
-- Structure the house correctly, with al the rooms positions fixed
-- Maybe add a tutorial in the start of the game
-
-
+  Phone:
+  - After the introduction day -> Add characters to the "renting app" (Wilson,Tobby,Jakob)
+  - Gambling app // This one I don't really know if it should go in the pc I'm going to add or just spawn it on the phone
+  - Inside the gambling app:
+  -   Heads or Tails // This can actually be an item find it in the closet
+  -   21 (Spanish card game)
+  -   "Carrera de Caballa" (Horse Race but family friendly)
+  -   Memory games
+Thing I want to add but I know it would be difficult so I have to consultated:
+- Windows 64 kinda thing
+- Little retro console with collectable minigames
 Characters(16)
 - Wilson
 - Tobby
