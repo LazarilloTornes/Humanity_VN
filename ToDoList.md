@@ -2,14 +2,14 @@ Things to add
   Details:
   - Some gif of hands in hylics style, just for the aesthetics
   - Maybe adding a "Timer" or something that add hours automatically when x time passes without calling any function (don't know if that would work)
-  House interactions:
+House interactions:
   - Sleep (with dreams and nightmare flashgames)
   - Watch TV (just a Timeskip, maybe some choices)
   - Read a book (same with TV)
   - Search in the closet (a d20 of random things to find, 1 at day)
   - Growing and taking care of a plant (beans, lentils, chickpeas)
   - Writing
-  Phone:
+Phone:
   - After the introduction day -> Add characters to the "renting app" (Wilson,Tobby,Jakob)
   - Gambling app // This one I don't really know if it should go in the pc I'm going to add or just spawn it on the phone
   - Inside the gambling app:
@@ -17,7 +17,7 @@ Things to add
   -   21 (Spanish card game)
   -   "Carrera de Caballa" (Horse Race but family friendly)
   -   Memory games
-Thing I want to add but I know it would be difficult so I have to consultated:
+Things want to add but I know it would be difficult so I have to consultated:
 - Windows 64 kinda thing
 - Little retro console with collectable minigames
 Characters(16)
