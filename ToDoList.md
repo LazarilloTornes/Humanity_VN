@@ -28,5 +28,10 @@ Characters(16)
 - V.E.N
 - Friederich
   ...
+
+Brainstorm a better way to organize time inside the game, because going hour after hour would be slow and repetitive after 21 days of games.
+Ideas:
+- Yokai watch system
+- Fnaf system + add hours
   
 
