@@ -2,24 +2,6 @@
 #variable que determina que hora va a ser
 #image bg_bathroom = "bathroom.png"
 #screen funciona como una funcion para crear un "escenario", esto puede servir más adelante para la crear la dinámica de libertad de exploración
-image eat = im.Scale("bg eater.jpeg", 1800, 1080)
-image bg_superkmarket = im.Scale("bg supermarket.png", config.screen_width, config.screen_height)
-image bg_verduras = im.Scale("bg verdura.png", config.screen_width, config.screen_height)
-image bg_pasta = im.Scale("bg pasta.png", config.screen_width, config.screen_height)
-image bg_carniceria = im.Scale("bg carniceria.png", config.screen_width, config.screen_height)
-image bg_capricho = im.Scale("bg capricho.png", config.screen_width, config.screen_height)
-image bg_sopa_instantanea = im.Scale("bg sopa.png", config.screen_width, config.screen_height)
-image bg_ventana = im.Scale("bg ventana.png", config.screen_width, config.screen_height)
-image bg_pagar = im.Scale("bg pagar.jpg", config.screen_width, config.screen_height)
-image mainroom = "mainroom.png"
-image livingroom = "livingroom.png"
-image ticket = "ticket.png"
-
-image found_coin = Movie(
-    play="text.webm",
-    size=(1920,1080)
-    )
-image closet = im.Scale("bg closet.jpg", config.screen_width, config.screen_height)
 default player_name = "Bolonga"
 #Dinero y comida
 default dinero = 50
@@ -33,36 +15,61 @@ default food = 0
 default day = 0
 default room = "mainroom"
 
-default rndItem = ["Moneda", "Consola", "Juegos", "Cartas antiguas", "Bakugan1","Bakugan2", "Bakugan3", "Gafas", "Libro1", "Libro2", "Libro3", "Libro4"]
+default items = ["Moneda", "Consola Antigua", "Juegos", "Cartas antiguas", "Bakugan Rojo","Bakugan Azul", "Bakugan Celeste", "Gafas Negras", "Obras de Espronceda", "Lazarillo de Tormes", "Rimas y Leyendas", "Don Juan Tenorio"]
+default item_founded = ""
+default inventory = []
+init python:
+    import random
+    def rnd_item_generator():
+        global item_founded, items
+        if not items:
+            item_founded = ""
+            return None
+        item_founded = random.choice(items)
+        items.remove(item_founded)
+        inventory.append(item_founded)
+
+
 #Closet thingy
 #AND REMEMBER SON
 # IF THE VIDEO DOESN'T WORK USE THE MAGIC WORDS
 #ffmpeg -i coin.webm -c:v libvpx-vp9 -pix_fmt yuv420p -c:a libopus coin_fixed.webm 
 label search_closet:
-    hide screen Mr_Game_and_Watch
-    show found_coin zorder 100
-    show closet
-    pause 4
-    hide found_coin
-    hide closet
-    jump main_loop
+   
+    if hour == 9 or hour == 13 or hour == 20:
+        "{cps=15}Creo que es un mejor momento para comer que para buscar entre los trastos.{/cps}"
+        return
+    else:
+        hide screen Mr_Game_and_Watch
+        show closet
+        "{cps=15}Estos armarios siguen llenos de todas las cosas dejadas atrás por tu abuelo{/cps}"
+        "{cps=15}Nadie se ha dignado a vaciar nada{/cps}"
+        "{cps=15}Podrías rebuscar entre las cosas{/cps}"
+        "{cps=15}Quizás encuentres algo interesante{/cps}"
+        hide closet with fade
+        show black with dissolve
+        play sound "audio/search_closet.mp3" fadein 0.5
+        pause 5
+        stop sound
+        show closet #Aquí iría el video
+        $ rnd_item_generator()
+        $ renpy.notify("Has encontrado {}".format(item_founded))
+        $ hour += 1
+        "{cps=15}Alfinal buscar entre tantas cosas te ha llevado bastante tiempo{/cps}"
+        hide closet
+        jump main_loop
     
 
  
 #Actualizar todo lo relacionado con el tiempo
 default hour = 9
-default eathour = "Desayunar"
-default day_moment = "Intro"
 default phone_disponible = False
-
 screen digital_clock:
-
     zorder 100
     textbutton "[hour:02d]:00":
         text_style "txtClock"
         xalign 0.95  
         yalign 0.05
-        padding (15, 10)
         background "#cddbc8"
         action NullAction()
     textbutton "Telefono":
@@ -148,7 +155,12 @@ label dlg_eat:
         "{cps=16}Ya has desayunado...{/cps}"
         "{cps=16}Para que quieres desayunar otra vez{/cps}"
     elif hour == 13:
-        "Hola"
+        "{cps=16}Perfecto, ya era hora de comer algo decente{/cps}"
+        play sound "audio/kitcken.mp3"
+        show black with dissolve
+        pause 3.0
+        stop sound
+        
     elif 13 < hour < 20:
         "{cps=16}Ya has comido...{/cps}"
         "{cps=16}Para que quieres comer otra vez{/cps}"
@@ -255,146 +267,7 @@ label lookoutside():
 
 default door_actions = ["Mirar", "Salir", "Contestar"]
 default phone_avaliable = True
-screen Mr_Game_and_Watch():
-    if room == "mainroom":
-        add "mainroom.png"
 
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 1150
-            ypos 500
-            action Call("dlg_bed")
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 400
-            ypos 710
-            action Call("dlg_wordsearch")
-        textbutton "Pasillo":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "pasillo")
-        imagebutton:
-            idle "right.png"
-            hover "right_p.png"
-            xpos 1650
-            ypos 970
-            action SetVariable("room", "closet")
-    elif room == "closet":
-        add im.Scale("bg closet.jpg", config.screen_width, config.screen_height)
-        textbutton "Habitacion":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "mainroom")
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 830
-            ypos 534
-            action Call("search_closet")  
-    elif room == "pasillo":
-        add "hall.png"
-        textbutton "Salón":
-            text_style "txtRoom"
-            xpos 1050
-            ypos 1000
-            action SetVariable("room", "livingroom")
-        textbutton "Habitacion":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "mainroom")
-        textbutton "Cocina":
-            text_style "txtRoom"
-            xpos 750
-            ypos 510
-            action SetVariable("room", "kitchen")
-        textbutton "Puerta":
-            text_style "txtRoom"
-            xpos 960
-            ypos 450
-            action SetVariable("room", "door")
-        textbutton "...":
-            text_style "txtRoom"
-            xpos 1210
-            ypos 520
-            action SetVariable("room","guestroom")
-    elif room == "kitchen":
-        add "kitchen.png"
-        textbutton "Comer algo":
-            text_style "txtActions"
-            xpos 960
-            ypos 650
-            action Call("dlg_eat")
-        textbutton "Atrás":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "pasillo")
-    elif room == "livingroom":
-        add "livingroom.png"
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 300
-            ypos 580
-            action Call("dlg_window")
-        imagebutton:
-            idle "interactive.png"
-            hover "interactive.png"
-            xpos 850
-            ypos 500
-            action Call("dlg_sofa")
-            
-        textbutton "Atrás":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "pasillo")
-    elif room == "hall2":
-        add "hall2.png"
-        textbutton "Puerta":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "door")
-        textbutton "Cocina":
-            text_style "txtRoom"
-            xpos 1600
-            ypos 350
-            action SetVariable("room", "kitchen")
-        textbutton "Salón":
-            text_style "txtRoom"
-            xpos 900
-            ypos 200
-            action SetVariable("room", "livingroom")
-        textbutton "Habitación de Invitados":
-            text_style "txtRoom"
-            xpos 300
-            ypos 850
-            action SetVariable("room", "guestroom")
-    elif room == "door":
-        add "door.png"
-        textbutton "Atrás":
-            text_style "txtRoom"
-            xpos 1000
-            ypos 1000
-            action SetVariable("room", "hall2")
-        textbutton "[door_actions[doorEvent]]":
-            text_style "txtRoom"
-            xpos 1000
-            ypos 250
-            action Call("lookoutside")
-    elif room == "guestroom":
-        add im.Scale("guestroom.jpeg", config.screen_width, config.screen_height)
-        textbutton "Atrás":
-            text_style "txtRoom"
-            xpos 850
-            ypos 1000
-            action SetVariable("room", "hall2")
 
 #renpy.say hace de dialogo abriendo una nueva interacción, que pasa, screen se cuenta como otra interacción y se interceptan
  
@@ -505,7 +378,11 @@ label asking_game:
 #Let the game be
 label main_loop:
     if hour == 13:
-        $ renpy.notify("Ya es hora de comer")    
+        $ renpy.notify("Ya es hora de comer")  
+    elif hour == 9:  
+        $ renpy.notify("Hora de desayunar")  
+    elif hour == 20:  
+        $ renpy.notify("Hora de cenar")  
     if phone_open == False:
         call screen Mr_Game_and_Watch
     else:

@@ -57,13 +57,13 @@ define gui.interface_text_color = '#f5f3f2'
 ## Tipos y tamaños de letra ####################################################
 
 ## El tipo de letra del texto del juego
-define gui.text_font = "Leander.ttf"
+define gui.text_font = "VCR_OSD_MONO_1.001.ttf"
 
 ## El tipo de letra de los nombres de personajes
-define gui.name_text_font = "Leander.ttf"
+define gui.name_text_font = "VCR_OSD_MONO_1.001.ttf"
 
 ## El tipo de letra del texto externo al juego.
-define gui.interface_text_font = "Leander.ttf"
+define gui.interface_text_font = "VCR_OSD_MONO_1.001.ttf"
 
 ## El tamaño normal del texto del diálogo.
 define gui.text_size = 33

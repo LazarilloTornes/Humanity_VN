@@ -210,7 +210,7 @@ screen phone():
                 ysize 100
                 xpos 1470
                 ypos 310
-                action SetVariable("phone_tab", "rent"), Show("phone")
+                action SetVariable("phone_tab", "rent_room"), Show("phone")
     elif phone_tab == "contacts":
         
         imagebutton:
@@ -348,6 +348,12 @@ screen phone():
             #background "#e6f4e1"
             action NullAction()
     elif phone_tab == "rent_room":
+        imagebutton:
+            idle "back_button.png"
+            hover "back_button.png"
+            xpos 1530
+            ypos 900
+            action SetVariable("phone_tab","home"), Show("phone")
         if day == 0:
             textbutton "No hay solicitudes :(":
                 xpos 1450  
@@ -360,12 +366,7 @@ screen phone():
                 ypos 310
                 padding (15, 10)
                 text_style "txtContacts"
-        imagebutton:
-            idle "back_button.png"
-            hover "back_button.png"
-            xpos 1530
-            ypos 900
-            action SetVariable("phone_tab","home"), Show("phone")
+        
 #Aquí todas las llamadas
 default qt_661 = ["Preguntar para alquilar la habitación","Preguntar detalles sobre la compañía","Mejor nada..."]
 default alquilar = False
@@ -448,6 +449,7 @@ label dlg_661:
             pause 0.5
             "{cps=14}Pues te ha colgado...{/cps}"
             $ alquilar = True
+            $ phone_tab = "home"
             jump main_loop
         "Preguntar detalles sobre la compañía":
             t "{cps=18}Muy bien, y que le gustaría saber?{/cps}"
