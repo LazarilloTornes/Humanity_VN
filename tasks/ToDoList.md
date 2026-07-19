@@ -29,6 +29,7 @@ Characters(16)
 - V.E.N
 - Friederich
   ...
+  
 MAIN THINGS TO DO
 - Finish all the interactions inside the house
 - Change the interface of "menu, save...
@@ -39,6 +40,8 @@ Phone
 Options (...)
 - Stablish all the "consume hour" activities
 - Add all backgrounds
+
+Adding a "office screen" when clicking the mouse (there you can add items you find from the closet)
 
 
 
