@@ -2,12 +2,13 @@ Things to add
   Details:
   - Some gif of hands in hylics style, just for the aesthetics
   - Maybe adding a "Timer" or something that add hours automatically when x time passes without calling any function (don't know if that would work)
+
 House interactions:
   - Sleep (with dreams and nightmare flashgames)
   - Watch TV (just a Timeskip, maybe some choices)
   - Read a book (same with TV)
   - Search in the closet (a d20 of random things to find, 1 at day)
-  - Growing and taking care of a plant (beans, lentils, chickpeas)
+  - Growing and taking care of a plant (beans, lentils, chickpeas) -> This would have a whole minigame for it
   - Writing
 Phone:
   - After the introduction day -> Add characters to the "renting app" (Wilson,Tobby,Jakob)
@@ -28,10 +29,22 @@ Characters(16)
 - V.E.N
 - Friederich
   ...
+  
+MAIN THINGS TO DO
+- Finish all the interactions inside the house
+- Change the interface of "menu, save...
+- Snake game
+- Draggable clock
+- Add buttons of:
+Phone
+Options (...)
+- Stablish all the "consume hour" activities
+- Add all backgrounds
 
-Brainstorm a better way to organize time inside the game, because going hour after hour would be slow and repetitive after 21 days of games.
-Ideas:
-- Yokai watch system
-- Fnaf system + add hours
+Adding a "office screen" when clicking the mouse (there you can add items you find from the closet)
+
+
+
+
   
 
