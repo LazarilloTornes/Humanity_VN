@@ -9,8 +9,12 @@ image bg_ventana = im.Scale("bg ventana.png", config.screen_width, config.screen
 image bg_pagar = im.Scale("bg pagar.jpg", config.screen_width, config.screen_height)
 image mainroom = "bg/bg_bedroom.png"
 image livingroom = "bg/bg_livingroom.png"
+image hall_bh = "bg/bg_hall2.png"
+image wup = "bg/bg_wup.png"
 image ticket = "ticket.png"
+image bath = "bg/bg_bathroom.png"
 image closet = im.Scale("bg/bg_closet.png", config.screen_width, config.screen_height)
+
 screen Mr_Game_and_Watch():
     if room == "mainroom":
         add "bg/bg_bedroom.png"
@@ -29,7 +33,7 @@ screen Mr_Game_and_Watch():
             idle "interactive/m.png"
             hover "interactive/m_h.png"
             focus_mask True
-            action NullAction()
+            action SetVariable("room", "escritorio")
         textbutton "Pasillo":
             text_style "txtRoom"
             xpos 850
@@ -41,6 +45,13 @@ screen Mr_Game_and_Watch():
             xpos 1650
             ypos 970
             action SetVariable("room", "closet")
+    elif room == "escritorio":
+        add im.Scale("bg/bg_escritorio.png", config.screen_width, config.screen_height)
+        textbutton "Habitacion":
+            text_style "txtRoom"
+            xpos 850
+            ypos 1000
+            action SetVariable("room", "mainroom")
     elif room == "closet":
         add im.Scale("bg/bg_closet.png", config.screen_width, config.screen_height)
         textbutton "Habitacion":
@@ -81,6 +92,24 @@ screen Mr_Game_and_Watch():
             xpos 1210
             ypos 520
             action SetVariable("room","guestroom")
+        textbutton "Baño":
+            text_style "txtRoom"
+            xpos 350
+            ypos 650
+            action SetVariable("room","bathroom")
+    elif room == "bathroom":
+        add "bg/bg_bathroom.png"
+        
+        textbutton "Atrás":
+            text_style "txtRoom"
+            xpos 850
+            ypos 1000
+            action SetVariable("room", "pasillo")
+        imagebutton:
+            idle "interactive/lvb.png"
+            hover "interactive/lvb_h.png"
+            focus_mask True
+            action Jump("first_impresion")
     elif room == "kitchen":
         add "bg/bg_kitchen.png"
         imagebutton:
@@ -126,9 +155,14 @@ screen Mr_Game_and_Watch():
         add "bg/bg_hall2.png"
         textbutton "Puerta":
             text_style "txtRoom"
-            xpos 850
+            xpos 950
             ypos 1000
             action SetVariable("room", "door")
+        textbutton "Habitación":
+            text_style "txtRoom"
+            xpos 850
+            ypos 1000
+            action SetVariable("room", "mainroom")
         textbutton "Cocina":
             text_style "txtRoom"
             xpos 1600
@@ -137,9 +171,9 @@ screen Mr_Game_and_Watch():
         textbutton "Salón":
             text_style "txtRoom"
             xpos 900
-            ypos 200
+            ypos 300
             action SetVariable("room", "livingroom")
-        textbutton "Habitación de Invitados":
+        textbutton "...":
             text_style "txtRoom"
             xpos 300
             ypos 850
@@ -163,3 +197,29 @@ screen Mr_Game_and_Watch():
             xpos 850
             ypos 1000
             action SetVariable("room", "hall2")
+
+label first_impresion:
+    
+    show bath at Position(xpos=700, ypos=1050)
+    hide screen digital_clock
+    show text '{cps=14}{color=#f5f0e3}...{/color}{/cps}' at Position(xalign=0.95, yalign=0.5)
+    pause 2.0
+    hide text 
+    show text '{cps=14}{color=#f5f0e3}Te preguntarás ...{/color}{/cps}' at Position(xalign=0.95, yalign=0.5)
+    pause 2.0
+    hide text
+    show text '{cps=14}{color=#f5f0e3}Que es esta{p} franja negra?{/color}{/cps}' at Position(xalign=0.95, yalign=0.5)
+    pause 2.0
+    hide text
+    show text '{cps=4}{color=#f5f0e3}...{/color}{/cps}' at Position(xalign=0.95, yalign=0.5)
+    pause 2.0
+    hide text
+    show text '{cps=14}{color=#f5f0e3}Pero,{p}aún no es el momento{/color}{/cps}' at Position(xalign=0.95, yalign=0.5)
+    pause 2.0
+    hide text
+    show text '{cps=4}{color=#f5f0e3}Espera un poco{p} y lo averiguarás.{/color}{/cps}' at Position(xalign=0.95, yalign=0.5)
+    pause 2.0
+    hide text
+    hide bath
+    show screen digital_clock
+    jump main_loop

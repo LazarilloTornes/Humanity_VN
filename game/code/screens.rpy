@@ -242,22 +242,33 @@ screen quick_menu():
     zorder 100
 
     if quick_menu:
+        if quick_menu_open:
+            viewport:
+                xsize 210
+                ysize 170
+                xpos 1520
+                ypos 250
+                scrollbars "vertical"
+                mousewheel True
+                draggable True
+                vbox:
+                    xpos 1520
+                    ypos 250
+                    textbutton _("Historial") action ShowMenu('history'):
+                        text_style "txtContacts"
+                    textbutton _("Saltar") action Skip() alternate Skip(fast=True, confirm=True):
+                        text_style "txtContacts"
+                    textbutton _("Auto") action Preference("auto-forward", "toggle"):
+                        text_style "txtContacts"
+                    textbutton _("Guardar") action ShowMenu('save'):
+                        text_style "txtContacts"
+                    textbutton _("Guardar R.") action QuickSave():
+                        text_style "txtContacts"
+                    textbutton _("Cargar R.") action QuickLoad():
+                        text_style "txtContacts"
+                    textbutton _("Prefs.") action ShowMenu('preferences'):
+                        text_style "txtContacts"
 
-        hbox:
-            style_prefix "quick"
-            style "quick_menu"
-
-            textbutton _("Atrás") action Rollback()
-            textbutton _("Historial") action ShowMenu('history')
-            textbutton _("Saltar") action Skip() alternate Skip(fast=True, confirm=True)
-            textbutton _("Auto") action Preference("auto-forward", "toggle")
-            textbutton _("Guardar") action ShowMenu('save')
-            textbutton _("Guardar R.") action QuickSave()
-            textbutton _("Cargar R.") action QuickLoad()
-            textbutton _("Prefs.") action ShowMenu('preferences')
-            if phone_disponible: 
-                textbutton _("Teléfono") action Show("phone"):
-                    text_style "txtPhone"
 
 
 ## Este código asegura que la pantalla 'quick_menu' se muestra en el juego,

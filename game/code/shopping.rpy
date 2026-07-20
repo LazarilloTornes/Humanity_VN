@@ -3,7 +3,7 @@ default dinero_gastado = 0
 screen compra:
     zorder 200
     textbutton "Dinero: [dinero]$":
-        text_style "txtClock"
+        text_style "txtPhone"
         xalign 0.85  
         yalign 0.05
         padding (15, 10)
@@ -317,6 +317,6 @@ label pagar_compra:
     pause 4
     $ renpy.notify("Explora la casa")
     play music "audio/ambientedia.mp3" loop volume 0.2 fadein 2.0
-    hide screen compra
     $ room = "hall2"
+    hide screen compra
     jump main_loop

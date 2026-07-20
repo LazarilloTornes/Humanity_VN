@@ -50,8 +50,8 @@ define gui.muted_color = '#666666'
 define gui.hover_muted_color = '#999999'
 
 ## Colores del texto del diálogo y menú.
-define gui.text_color = '#f5f3f2'
-define gui.interface_text_color = '#f5f3f2'
+define gui.text_color = '#212b24'
+define gui.interface_text_color = '#212b24'
 
 
 ## Tipos y tamaños de letra ####################################################
@@ -130,8 +130,8 @@ define gui.namebox_tile = False
 
 ## Colocación del diálogo relativa a la caja de texto. Puede ser el número de
 ## píxels relativos a la esquina superor izquierda o 0.5 para centrar.
-define gui.dialogue_xpos = 402
-define gui.dialogue_ypos = 75
+define gui.dialogue_xpos = 50
+define gui.dialogue_ypos = 100
 
 ## La anchura máxima del texto del diálogo, en píxels.
 define gui.dialogue_width = 1116
@@ -448,7 +448,7 @@ init python:
         gui.textbox_height = 360
         gui.name_xpos = 120
         gui.dialogue_xpos = 135
-        gui.dialogue_width = 1650
+        gui.dialogue_width = 1400
 
         ## Cambia el tamaño y espaciado de varios elementos.
         gui.slider_size = 54

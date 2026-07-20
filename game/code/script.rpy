@@ -66,12 +66,21 @@ default hour = 9
 default phone_disponible = False
 screen digital_clock:
     zorder 100
-    textbutton "[hour:02d]:00":
-        text_style "txtClock"
-        xalign 0.95  
-        yalign 0.05
-        background "#cddbc8"
-        action NullAction()
+    draggroup:
+        drag:
+            drag_name "popup"
+            draggable True
+            xpos 1700
+            ypos 50
+            xsize 100
+            ysize 100
+            fixed:
+                textbutton "[hour:02d]:00":
+                    text_style "txtClock"
+                    background "#cddbc8"
+                    action NullAction()
+  
+    
     textbutton "Telefono":
         text_style "txtPhone"
         xalign 0.85  
@@ -82,14 +91,34 @@ screen digital_clock:
 
 #All interactions, don't get lost buddy
 label dlg_bed:
-    if 9 <= hour <= 13:
+    if 9 == hour:
         show mainroom
         "Aquí yace tu cómoda cama, de la cual te acabas de levantar."
         "{cps=4}. . . {/cps}"
         "No creo que quieras seguir durmiendo"
         hide mainroom
         call screen Mr_Game_and_Watch
-
+    elif hour != 9 and hour < 13:
+        show mainroom
+        "{cps=14}Ciertamente tienes una cama bastante cómoda.{/cps}"
+        if doorEvent == 1:
+            "{cps=14}Pero antes de dormir más tienes que hacer la compra.{/cps}"
+            "{cps=14}Se que puede dar pereza.{/cps}"
+            "{cps=14}Es lo que hay.{/cps}"
+            hide mainroom
+            return
+        else:
+            "{cps=10}Quieres dormir hasta la hora de comer?{/cps}"
+            menu:
+                "Sí, no tengo nada mejor que hacer":
+                    hide mainroom
+                    show black
+                    pause 2.0
+                    #Agregar sonido de ronquido
+                    $ hour = 13
+                    return
+                "No, prefiero hacer otra cosa":
+                    return
     elif 14 <= hour <= 19:
         "Vas a echarte una siesta de verdad? Y no prefieres disfrutar del tiempo libre que tienes?"
     return
@@ -136,9 +165,9 @@ label dlg_eat:
         "{cps=16}Mirándolo bien, no queda casi nada de comida, tendrás que hacer la compra{/cps}"
         window hide
         hide kitchen
-        show hall2
+        show hall_bh
         pause 1
-        hide hall2
+        hide hall_bh
         show livingroom
         pause 0.5
         "Bon Apetite"
@@ -149,18 +178,23 @@ label dlg_eat:
         "{cps=16}Buscando entre los cojines encuentras el mando de la televisión y la enciendes{/cps}"
         play sound "audio/button.mp3"
         stop sound
-
         call news
     elif 9 < hour < 13:
         "{cps=16}Ya has desayunado...{/cps}"
         "{cps=16}Para que quieres desayunar otra vez{/cps}"
     elif hour == 13:
-        "{cps=16}Perfecto, ya era hora de comer algo decente{/cps}"
+        "{cps=16}Es momento de comer algo...{/cps}"
         play sound "audio/kitcken.mp3"
         show black with dissolve
         pause 3.0
         stop sound
-        
+        show kitchen
+        menu:
+            "Donde prefieres comer?"
+            "Salón":
+                jump lb_livingroom_eat
+            "Aquí mismo":
+                jump lb_kitchen_eat
     elif 13 < hour < 20:
         "{cps=16}Ya has comido...{/cps}"
         "{cps=16}Para que quieres comer otra vez{/cps}"
@@ -172,7 +206,39 @@ label dlg_eat:
     hide kitchen
     return
 
-
+label lb_livingroom_eat:
+    hide kitchen
+    show hall_bh with dissolve
+    pause 1.0
+    hide hall_bh
+    show eat
+    narrator "{cps=15}Que aproveche{/cps}"
+    play sound "audio/comer.mp3" loop
+    call news
+label lb_kitchen_eat:
+    stop music
+    hide kitchen
+    "{cps=16}Pues aquí mismo entonces{/cps}"
+    show black with dissolve
+    show kitchen with dissolve
+    play sound "audio/comer.mp3" loop
+    "{cps=16}Espero que esté rica la comida{/cps}"
+    pause 3
+    if alquilar == False:
+        "{cps=16}Sabes?{w=0.5} podrías llamar a esa compañía que alquila habitaciones{/cps}"
+        "{cps=14}Así podrías darle un buen uso a esa habitación que tienes vacía{/cps}"
+        "{cps=14}Y conseguir un poco de dinero{/cps}"
+    else:
+        "{cps=14}mmmmmmmmmm{/cps}"
+        "{cps=14}Qué podrías hacer esta tarde?{/cps}"
+    pause
+    stop sound
+    show black with dissolve
+    $ hour += 1
+    "Bueno, pues ya estaría"
+    pause 0.5
+    play music "audio/ambientenoon.mp3" loop
+    return
 default pelicula = False
 label dlg_sofa:
     show livingroom
@@ -293,8 +359,6 @@ default phone_avaliable = True
 
 
 label start:
-
-    pause 4
     "Buenos días, tardes o noche"
     "Antes de introducirte en el juego y contarte tu historia me gustaria avisarte de unas pequeñas cosillas"
     "Este juego presenta contenido maduro, explícito e incluso gráfico, por lo cual debe de jugarse bajo estas condiciones"
@@ -341,6 +405,17 @@ label start:
     narrator "{cps=16}Cualquiera diría que te ha tocado la lotería, alguien como tú, con estudios pero desempleado, buscando trabajo, consiguiendo una casa de la noche a la mañana, ¿Quién lo imaginaba?{/cps}"
     narrator "{cps=16}Y con tus padres desesperados por echarte de casa esta era la excusa perfecta.{/cps}"
     narrator "{cps=16}Pero que te puedo decir, aunque haya costado un poco has conseguido mudarte a un rincón de la ciudad, un antiguo barrio de trabajadores.{/cps}"
+    # narrator "{cps=5}Yaa...{/cps}{cps=9} seguro...{/cps}..... [player_name]."
+    # narrator "{cps=16}Ahora permíteme ponerte un poco en contexto [player_name].{/cps}"
+    # narrator "{cps=16}Conseguiste independizarte,¡Enhorabuena! aunque gracias a la herencia de un familiar, quien muy amablemente te cedió uno de sus apartamentos.{/cps}"
+    # narrator "{cps=16}Puedes considerarte un suertudo y, sin embargo, estás viviendo por tu cuenta, sin nadie más.{/cps}"
+    # narrator "{cps=16}Te diría que es un gran logro, pero aún estás buscando trabajo, tus padres te pasan una pensión para que puedas vivir y... poco más, tus últimos días se han resumido en: comer, buscar trabajos y dormir{/cps}"
+    # narrator "{cps=16}¿Cuánto llevas repitiendo esta misera vida? {w=1} Tampoco te lo quiero recordar…{/cps}"
+    # narrator "{cps=19}Al final, despues de todo vives en una casa con 2 habitaciones, un salón y una cocina para ti, 2 baños que raramente alternas, y aun así te aíslas.{/cps}"
+    # narrator "{cps=15}No sabes nada del exterior que no sean las noticias y ese dichoso cielo rojizo que tanto daño te hace a la vista. Te asomas para ver si hay alguien, pero está completamente vacío.{/cps}"
+    # narrator "{cps=16}Es como si fueras el último humano en el planeta…{/cps}"
+    # narrator "{cps=16}Colgaste hace poco un cartel por tus calles para alquilar una de las habitaciones, lo dejaste a un precio accesible ya que realmente te vendría bien un dinero extra. Pero nadie viene…{/cps}"
+    
     menu:
         "¿Llevas bien la soledad?"
         "Sí":
@@ -351,14 +426,14 @@ label start:
     play sound "audio/alarm-clock.mp3" fadein(0.5)
     narrator "{cps=16}Abres tus ojos lentamente, agotad[articulo],  intentando alcanzar tu móvil que no paraba de vibrar y sonar{/cps}"
     pause 1
-    show bg weikiweiki 
+    show wup
     #narrator "{cps=16}{/cps}" 
     narrator "{cps=16}Son las 9:00, y por alguna razón te has puesto una alarma a esa hora, intentando crear un buen habito en tu nueva vida de independiente.{/cps}"
     narrator "{cps=4}Supongo{/cps}"
     pause 1
     play sound "wake_up.mp3"
     narrator "{cps=16}Siendo tan pronto tienes todo el tiempo para hacer lo que quieras… Pero lo mejor será desayunar para empezar el día{/cps}"
-    hide bg weikiweiki
+    hide wup
     window hide
     pause 1.0
     $ renpy.notify("Acabas de coger el móvil")

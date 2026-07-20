@@ -6,6 +6,7 @@
 # x-1,y-1   x,y-1   x+1,y-1
 # x-1,y     x,y     x+1,y
 # x-1,y+1   x,y+1   x+1,y+1
+default quick_menu_open = False
 init python:
     import random
     
@@ -199,6 +200,14 @@ screen phone():
             xpos 1590
             ypos 250
             action SetVariable("phone_tab", "bank"), Show("phone")
+        imagebutton:
+            idle "buttons/btn_config.png"
+            hover "buttons/btn_config.png"
+            xsize 60
+            ysize 60
+            xpos 1650
+            ypos 250
+            action SetVariable("phone_tab", "config"),SetVariable("quick_menu_open", True), Show("phone")
         if alquilar:
             $ phone_open = True
             imagebutton:
@@ -209,6 +218,14 @@ screen phone():
                 xpos 1470
                 ypos 310
                 action SetVariable("phone_tab", "rent_room"), Show("phone")
+    elif phone_tab == "config":
+        imagebutton:
+            idle "back_button.png"
+            hover "back_button.png"
+            xpos 1450
+            ypos 370
+            action SetVariable("phone_tab", "home"), SetVariable("quick_menu_open", False), Show("phone")
+   
     elif phone_tab == "contacts":
         
         imagebutton:
