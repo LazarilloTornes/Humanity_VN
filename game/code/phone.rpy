@@ -250,16 +250,16 @@ screen phone():
                         text_style "txtContacts"
                         action If(
                             i == "661",
-                            [Jump("dlg_661"), Hide("phone"), SetVariable("phone_open", False)],
+                            [Hide("phone"),SetVariable("phone_open", False), Jump("dlg_661")],
                             If(
                                 i == "627",
                                 Jump("dlg_627"),
                                 If(
                                     i == "AAMamá",
-                                    Jump("dlg_mama"),
+                                    [Hide("phone"), SetVariable("phone_open", False), Jump("dlg_mama")],
                                     If(
                                         i == "AAPapá",
-                                        Jump("dlg_papa"),
+                                        [Hide("phone"), SetVariable("phone_open", False), Jump("dlg_papa")],
                                         NullAction()
                                     )
                                 )
@@ -297,9 +297,9 @@ screen phone():
         imagebutton:
             idle "back_button.png"
             hover "back_button.png"
-            xpos 1530
-            ypos 900
-            action SetVariable("phone_tab","home"), Show("phone")
+            xpos 1470
+            ypos 370
+            action SetVariable("phone_tab", "home"), Show("phone")
         if day == 0:
             textbutton "No hay solicitudes :(":
                 xpos 1450  
@@ -399,7 +399,7 @@ label dlg_mama:
     stop sound fadeout 0.5
     play music "audio/ambientedia.mp3" loop volume 0.2 fadein 0.5
     "{cps=15}No parece que vaya a responder...{/cps}"
-  
+    $ phone_open = False
     jump main_loop
 label dlg_papa: 
     show black
@@ -409,12 +409,12 @@ label dlg_papa:
     stop sound fadeout 0.5
     play music "audio/ambientedia.mp3" loop volume 0.2 fadein 0.5
     "{cps=15}No parece que vaya a responder...{/cps}"
-   
+    $ phone_open = False
     jump main_loop
 label dlg_661: 
     stop music fadeout 1.0
     play sound "audio/call.mp3" fadein 0.5
-    pause 2.5
+    pause 2
     stop sound fadeout 0.5
     play music "audio/ambientedia.mp3" loop volume 0.2 fadein 0.5
     if alquilar == False:

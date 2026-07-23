@@ -36,34 +36,44 @@ init python:
 #ffmpeg -i coin.webm -c:v libvpx-vp9 -pix_fmt yuv420p -c:a libopus coin_fixed.webm 
 label search_closet:
    
-    if hour == 9 or hour == 13 or hour == 20:
+    if hour == 8 or hour == 13 or hour == 20:
+        show closet
         "{cps=15}Creo que es un mejor momento para comer que para buscar entre los trastos.{/cps}"
+        hide closet
         return
     else:
-        hide screen Mr_Game_and_Watch
-        show closet
-        "{cps=15}Estos armarios siguen llenos de todas las cosas dejadas atrás por tu abuelo{/cps}"
-        "{cps=15}Nadie se ha dignado a vaciar nada{/cps}"
-        "{cps=15}Podrías rebuscar entre las cosas{/cps}"
-        "{cps=15}Quizás encuentres algo interesante{/cps}"
-        hide closet with fade
-        show black with dissolve
-        play sound "audio/search_closet.mp3" fadein 0.5
-        pause 5
-        stop sound
-        show closet #Aquí iría el video
-        $ rnd_item_generator()
-        $ renpy.notify("Has encontrado {}".format(item_founded))
-        $ hour += 1
-        "{cps=15}Alfinal buscar entre tantas cosas te ha llevado bastante tiempo{/cps}"
-        hide closet
-        jump main_loop
+        if clst_attempts == 1:
+            hide screen Mr_Game_and_Watch
+            show closet
+            "{cps=15}Estos armarios siguen llenos de todas las cosas dejadas atrás por tu abuelo{/cps}"
+            "{cps=15}Nadie se ha dignado a vaciar nada{/cps}"
+            "{cps=15}Podrías rebuscar entre las cosas{/cps}"
+            "{cps=15}Quizás encuentres algo interesante{/cps}"
+            hide closet with fade
+            show black with dissolve
+            play sound "audio/search_closet.mp3" fadein 0.5
+            pause 5
+            stop sound
+            show closet #Aquí iría el video
+            $ rnd_item_generator()
+            $ renpy.notify("Has encontrado {}".format(item_founded))
+            $ clst_attempts = 0
+            $ hour += 1
+            "{cps=15}Alfinal buscar entre tantas cosas te ha llevado bastante tiempo{/cps}"
+            hide closet
+            jump main_loop
+        else:
+            show closet
+            "{cps=15}Ya has rebuscado lo suficiente por hoy, quizás otro día sigues{/cps}"
+            hide closet
+            jump main_loop
     
 
  
 #Actualizar todo lo relacionado con el tiempo
-default hour = 9
+default hour = 8
 default phone_disponible = False
+default clst_attempts = 1
 screen digital_clock:
     zorder 100
     draggroup:
@@ -79,26 +89,32 @@ screen digital_clock:
                     text_style "txtClock"
                     background "#cddbc8"
                     action NullAction()
-  
-    
-    textbutton "Telefono":
-        text_style "txtPhone"
-        xalign 0.85  
-        yalign 0.05
-        padding (15, 10)
-        background "#a9b4a5"
-        action SetVariable("phone_open", True), Show("phone")
+    if room == "closet":
+        textbutton "Intentos: [clst_attempts]":
+            text_style "txtContacts"
+            xalign 0.85  
+            yalign 0.05
+            padding (15, 10)
+            background "#e6f4e1"
+            action NullAction()
+    else:
+        imagebutton:
+            idle "buttons/btn_phone.png"
+            hover "buttons/btn_phone.png"
+            xalign 0.85  
+            yalign 0.05
+            action SetVariable("phone_open", True), Show("phone")
 
 #All interactions, don't get lost buddy
 label dlg_bed:
-    if 9 == hour:
+    if 8 == hour:
         show mainroom
         "Aquí yace tu cómoda cama, de la cual te acabas de levantar."
         "{cps=4}. . . {/cps}"
         "No creo que quieras seguir durmiendo"
         hide mainroom
         call screen Mr_Game_and_Watch
-    elif hour != 9 and hour < 13:
+    elif hour != 8 and hour < 13:
         show mainroom
         "{cps=14}Ciertamente tienes una cama bastante cómoda.{/cps}"
         if doorEvent == 1:
@@ -127,7 +143,7 @@ label dlg_bed:
 label dlg_wordsearch:
     show mainroom
     "Es la antigua revista de Sopa de Letras de tu abuelo. Parece estar solo en Español"
-    if hour == 9:
+    if hour == 8:
         "Despues de desayunar podrías hacer una"
         hide mainroom
         return
@@ -156,7 +172,7 @@ label dlg_wordsearch:
 
 label dlg_eat:
     show kitchen
-    if hour == 9:
+    if hour == 8:
         play sound "audio/kitchen.mp3"
         pause 2.5
         stop sound
@@ -179,7 +195,7 @@ label dlg_eat:
         play sound "audio/button.mp3"
         stop sound
         call news
-    elif 9 < hour < 13:
+    elif 8 < hour < 13:
         "{cps=16}Ya has desayunado...{/cps}"
         "{cps=16}Para que quieres desayunar otra vez{/cps}"
     elif hour == 13:
@@ -257,7 +273,7 @@ label dlg_sofa:
     return
 label dlg_window:
     show bg_ventana with dissolve
-    if hour == 9:
+    if hour == 8:
         "Será mejor desayunar primero"
         hide bg_ventana
         return
@@ -336,6 +352,83 @@ label lookoutside():
 default door_actions = ["Mirar", "Salir", "Contestar"]
 default phone_avaliable = True
 
+
+label lb_lvb:
+    show bath 
+    pause 0.5
+    hide bath
+    show labamanos with dissolve
+    "Quieres labarte las manos?"
+    menu:
+        "Sí":
+            show black
+            play sound "audio/tap_water.mp3"
+            pause 3
+            show labamanos
+            stop sound
+            "{cps=14}Sientes tu manos bastante más...limpias{/cps}"
+            "{cps=16}No se que te esperabas{/cps}"
+            hide labamanos
+            jump main_loop
+            return
+        "Ahora no hace falta":
+            hide labamanos
+            jump main_loop
+            return
+            
+label lb_tlt:
+    show bath 
+    "{cps=15}...{/cps}"
+    "{cps=15}Supongo que necesitas hacer tus necesidades{/cps}"
+    menu:
+        "Sí":
+            show black
+            pause 5
+            play sound "audio/flush.mp3"
+            pause
+            stop sound
+            "{cps=14}Te sientes más... vacío?{/cps}"
+            "Mejor"
+            hide bath
+            jump main_loop
+            return
+        "No":
+            hide bath
+            jump main_loop
+            return
+
+label lb_dch:
+    show bath
+    if hour == 8:
+        "{cps=14}No hay nada mejor que una ducha para empezar el día{/cps}"
+        menu:
+            "Ducharse":
+                show black
+                play sound "audio/shower.mp3" loop
+                pause
+                stop sound
+                hide bath
+                jump main_loop
+                return
+            "No":
+                hide bath
+                jump main_loop
+                return
+    else:
+    
+        menu:
+            "Ducharse":
+                show black
+                play sound "audio/shower.mp3" loop
+                pause
+                stop sound
+                hide bath
+                jump main_loop
+                return
+            "No":
+                hide bath
+                jump main_loop
+                return
 
 #renpy.say hace de dialogo abriendo una nueva interacción, que pasa, screen se cuenta como otra interacción y se interceptan
  
@@ -465,8 +558,7 @@ label main_loop:
     else:
         call screen phone
     jump main_loop
-
-    
+ 
 
 # #labels y python para lógica
 # #screens para la interfaz

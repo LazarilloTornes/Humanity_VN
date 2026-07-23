@@ -1,7 +1,7 @@
 
 #Have in mind you have to design at least 21 news for the whole game
 label news:
-    if hour == 9: #and day == x:
+    if hour == 8: #and day == x:
         show eat
         #all the news will be condicionate by the day
         stop music fadeout 1.0
@@ -50,12 +50,16 @@ label news:
         show screen tv_shit
         show text '{cps=14}{color=#270303ff}...{/color}{/cps}' at Position(xalign=0.8, yalign=0.1) zorder 100
         pause 3
+        hide text
         show text '{cps=14}{color=#270303ff}Vaya programa más raro{/color}{/cps}' at Position(xalign=0.8, yalign=0.1) zorder 100
         pause 3
+        hide text
         show text '{cps=14}{color=#270303ff}De verdad te gusta esto?{/color}{/cps}' at Position(xalign=0.8, yalign=0.1) zorder 100
         pause
+        hide text
         narrator "{cps=16}Supongo que ya habrás terminado de comer{/cps}" 
-        narrator "{cps=14}Ahora es momento de disfrutar la tarde{/cps}" 
+        narrator "{cps=14}Ahora es momento de disfrutar la tarde{/cps}"
+        hide eat 
         hide screen tv_shit
         show screen digital_clock
         stop sound
